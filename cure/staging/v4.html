@@ -391,7 +391,7 @@ function renderFFTips(){
     const line = ffReassureTmpl.replace("{BODY}", body);
     h += '<div class="step"><div class="tag">'+esc(FF_REASSURE_LABEL)+'</div><div class="read">'+esc(line)+'</div></div>';
   }
-  if (ffWalk && checked.some(([lab]) => FF_ENVELOPE.indexOf(lab) !== -1)){
+  if (ffWalk && checked.some(([lab]) => FF_ENVELOPE.indexOf(lab) !== -1 || lab === "OTHER")){  // OTHER: show the fill-out walk too, since the "other" code is ambiguous
     let wt = ffWalk[1].replace("{PHONE}", phone);
     if (c.dropbox && UNIVERSAL.dropbox) wt += " " + UNIVERSAL.dropbox;  // encourage drop boxes where the county has them
     h += '<div class="step"><div class="tag">'+esc(ffWalk[0])+'</div><div class="read">' +
