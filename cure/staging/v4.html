@@ -317,13 +317,13 @@ function ffWhyBody(labels, multi){
   if (multi){
     const reasons = ffReasonListShort(labels.filter(l => l !== "OTHER"));
     s = reasons
-      ? "Your ballots have been canceled in recent elections because of " + reasons + ". We're calling to let you know how to fix these problems."
-      : "Your ballots have been canceled in recent elections. We're calling to let you know how to fix these problems.";
+      ? "Your ballots have been canceled in recent elections because of " + reasons + ". We're calling to let you know how to avoid these problems."
+      : "Your ballots have been canceled in recent elections. We're calling to let you know how to avoid these problems.";
   } else {
     const reasons = ffReasonList(labels.filter(l => l !== "OTHER"));
     s = reasons
-      ? "The county's records show that your ballot was not counted in the 2026 primary because " + reasons + ". We're calling to let you know how to fix this problem."
-      : "The county's records show your ballot was not counted with a reason code of \"other,\" which doesn't allow us to tell you specifically what was wrong. We're calling to let you know how to fix this problem.";
+      ? "The county's records show that your ballot was not counted in the 2026 primary because " + reasons + ". We're calling to let you know how to avoid this problem."
+      : "The county's records show your ballot was not counted with a reason code of \"other,\" which doesn't allow us to tell you specifically what was wrong. We're calling to let you know how to avoid this problem.";
   }
   if (hasUnd)
     s += " Unless you update your address with the county elections office, your ballot will likely be returned by USPS to the county elections office again in November.";
