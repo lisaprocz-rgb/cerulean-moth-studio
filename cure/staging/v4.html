@@ -229,7 +229,9 @@ function renderRef(c){
     const blurb = fixes.length ? " Make sure you " + joinAnd(fixes) + "." : "";
     issueAnswer = (list
       ? "Over the past few elections, there have been a few issues: " + list + "."
-      : "Over the past few elections, there have been a few issues with your ballot.") + blurb;
+      : "Over the past few elections, there have been a few issues with your ballot.")
+      + (checkedLabels.indexOf("OTHER") !== -1 ? " In another election, your ballot was not counted because of an unspecified error labeled \"other,\" which doesn't allow us to tell you specifically what was wrong." : "")
+      + blurb;
   } else {
     issueAnswer = FAQ_ISSUE[checkedLabels[0]] || "There was an issue with your ballot that needs attention.";
   }
