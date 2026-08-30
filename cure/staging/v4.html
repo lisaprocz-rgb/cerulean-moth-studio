@@ -434,6 +434,7 @@ function renderFFTips(){
            '<div class="boehint">The phone number will be copied to your clipboard and then use the transfer tool in Dialpad to connect the voter.</div>' +
          '</div></div>';
   }
+  h = h.replace(/the 2026 primary/g, "a recent election");  // single-issue tips: soften unverifiable "2026 primary" claim to "a recent election"
   box.innerHTML = h || '<p class="ffhint">Check the issues in this voter’s history above to show the tips to read.</p>';
   box.querySelectorAll('.boebtn[data-copy]').forEach(b => b.onclick = () => {
     const v = b.getAttribute('data-copy');
@@ -475,7 +476,7 @@ function render(){
   const multiOpen = document.querySelectorAll(".ffcb:checked").length > 1;
   const opener = multiOpen
     ? F.opener.replace("whose ballots were not counted in the 2026 primary", "whose mail ballots have been canceled in recent elections")
-    : F.opener;
+    : F.opener.replace("the 2026 primary", "a recent election");
   $("script").innerHTML =
     NEXT("top") +
     '<div class="cty">Reading for <span>'+esc(county)+' County</span></div>' +
