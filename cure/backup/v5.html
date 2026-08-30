@@ -374,7 +374,7 @@ function renderFFTips(){
       // Per-county Call/Email/Both variation (built at compile time); multi drops the "2026 primary" claim.
       t = (multi && c.undTipMulti) ? c.undTipMulti : c.undTip;
     } else {
-      t = txt.replace("{PHONE}", phone);
+      t = txt.replace("{PHONE}", phone).replace(/your county elections office/gi, "the **"+c.boe+"**");
       // Multi-issue voters may not be from the 2026 primary — soften the No ID tip's claim.
       if (lab === "NO ID" && multi)
         t = t.replace('tell them that your ballot did not count in the 2026 primary because of an "ID verification issue."',
