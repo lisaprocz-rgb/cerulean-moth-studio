@@ -423,6 +423,7 @@ function renderFFTips(){
       // Only mention a drop box where the county actually has one (matches the FAQ).
       if (lab === "RETURNED AFTER DEADLINE" && c.dropbox && UNIVERSAL.dropbox) t += " " + UNIVERSAL.dropbox;
     }
+    t = t.replace(/\b(calling or emailing|call or email|calling|emailing|call|email|mail a letter)\b/gi, "**$1**");  // bold the action instruction
     h += '<div class="step"><div class="tag">'+esc(lab)+'</div><div class="read">' +
          fmt(t, c.phone) + '</div></div>';
   });
