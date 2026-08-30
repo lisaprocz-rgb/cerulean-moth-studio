@@ -304,19 +304,20 @@ function ffCommitment(labels){
   const dc = [];
   labels.forEach(l => { const p = FF_CHECK[l]; if (p && dc.indexOf(p) === -1) dc.push(p); });
   const dcText = dc.length ? "double-check " + joinAnd(dc) + " before you return your ballot" : "";
-  let endQ;
-  if (hasUnd && noidMail) endQ = " Can we count on you to make that call and mail that letter?";
-  else if (hasUnd || (hasNoID && !noidMail)) endQ = " Can we count on you to make that call?";
-  else if (noidMail) endQ = " Can we count on you to mail that letter?";
-  else endQ = " Can we count on you?";
   const parts = [];
   if (hasUnd) parts.push("give your county Board of Elections a quick call and confirm that they have your correct mailing address");
   if (dcText) parts.push(dcText);
+  // When No ID is combined with another action, name the ID step so it's clear which issue it fixes.
+  const noidCombined = hasNoID && parts.length > 0;
+  if (noidCombined) parts.push(noidMail ? "mail the letter to validate your ID" : "call your county Board of Elections to validate your ID");
   if (parts.length){
     const lead = (hasUnd || hasNoID)
       ? "Before ballots go out this November, the most useful thing you can do is "
       : "Before your ballot goes back this November, the most important thing is to ";
-    return lead + joinAnd(parts) + "." + endQ;
+    const close = noidCombined ? " Can we count on you?"
+                : hasUnd ? " Can we count on you to make that call?"
+                : " Can we count on you?";
+    return lead + joinAnd(parts) + "." + close;
   }
   if (hasNoID) return noidMail ? "Can we count on you to mail that letter?" : "Can we count on you to make that call?";
   return "";
