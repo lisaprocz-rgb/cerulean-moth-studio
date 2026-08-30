@@ -300,10 +300,15 @@ const FF_CHECK = {
 function ffCommitment(labels){
   const hasNoID = labels.indexOf("NO ID") !== -1;
   const hasUnd  = labels.indexOf("UNDELIVERABLE") !== -1;
+  const noidMail = hasNoID && WORDING.noidAddr && WORDING.noidAddr[county];  // this county's No ID is a mail-a-letter process
   const dc = [];
   labels.forEach(l => { const p = FF_CHECK[l]; if (p && dc.indexOf(p) === -1) dc.push(p); });
   const dcText = dc.length ? "double-check " + joinAnd(dc) + " before you return your ballot" : "";
-  const endQ = (hasUnd || hasNoID) ? " Can we count on you to make that call?" : " Can we count on you?";
+  let endQ;
+  if (hasUnd && noidMail) endQ = " Can we count on you to make that call and mail that letter?";
+  else if (hasUnd || (hasNoID && !noidMail)) endQ = " Can we count on you to make that call?";
+  else if (noidMail) endQ = " Can we count on you to mail that letter?";
+  else endQ = " Can we count on you?";
   const parts = [];
   if (hasUnd) parts.push("give your county Board of Elections a quick call and confirm that they have your correct mailing address");
   if (dcText) parts.push(dcText);
@@ -313,7 +318,7 @@ function ffCommitment(labels){
       : "Before your ballot goes back this November, the most important thing is to ";
     return lead + joinAnd(parts) + "." + endQ;
   }
-  if (hasNoID) return "Can we count on you to make that call?";
+  if (hasNoID) return noidMail ? "Can we count on you to mail that letter?" : "Can we count on you to make that call?";
   return "";
 }
 // Live-transfer offer only makes sense while the county office is open.
