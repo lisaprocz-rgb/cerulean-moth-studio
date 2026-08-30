@@ -315,10 +315,14 @@ function ffWhyBody(labels, multi){
   const hasUnd = labels.indexOf("UNDELIVERABLE") !== -1;
   let s;
   if (multi){
+    const hasOther = labels.indexOf("OTHER") !== -1;
     const reasons = ffReasonListShort(labels.filter(l => l !== "OTHER"));
     s = reasons
-      ? "Your ballots have been canceled in recent elections because of " + reasons + ". We're calling to let you know how to avoid these problems."
-      : "Your ballots have been canceled in recent elections. We're calling to let you know how to avoid these problems.";
+      ? "Your ballots have been canceled in recent elections because of " + reasons + "."
+      : "Your ballots have been canceled in recent elections.";
+    if (hasOther)
+      s += " In another election, your ballot was not counted because of an unspecified error labeled \"other,\" which doesn't allow us to tell you specifically what was wrong.";
+    s += " We're calling to let you know how to avoid these problems.";
   } else {
     const reasons = ffReasonList(labels.filter(l => l !== "OTHER"));
     s = reasons
