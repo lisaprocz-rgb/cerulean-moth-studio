@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>Cure Call Companion 4</title>
+<title>Cure Script - All Issues - Saturday, September 5, 2026</title>
 <style>
   :root{
     --bg:#FBF8EC; --card:#FFFFFF; --ink:#1A2233; --muted:#5A6478; --navy:#071539;
@@ -107,6 +107,8 @@
   .boebtnwrap{text-align:center;margin-bottom:2px;}
   .boebox{border-left-color:var(--phone);}
   @media(max-width:640px){ .read{font-size:1rem;} select{min-width:150px; flex:1;} }
+  .daily-banner{background:#9B1C31;color:#fff;font-weight:800;font-size:.85rem;padding:6px 12px;border-radius:8px;align-self:center;letter-spacing:.3px;white-space:nowrap;}
+  #expired-screen{max-width:860px;margin:0 auto;padding:48px 16px;}
 </style>
 
 <div class="topfreeze">
@@ -116,8 +118,7 @@
   <div class="titles">
     <div class="t1">Voter Assistance</div>
     <div class="t2">Summer Cure Script</div>
-  </div>
-</div></div>
+  </div> <div class="daily-banner">For Saturday, September 5, 2026 only</div></div></div>
 
 <header>
 <meta name="robots" content="noindex,nofollow"><div class="wrap">
@@ -362,7 +363,7 @@ function ffCommitment(labels){
   if (noidCombined) parts.push(noidMail ? "mail the letter to validate your ID" : "call your county Board of Elections to validate your ID");
   if (parts.length){
     const lead = (hasUnd || hasNoID)
-      ? "Before ballots go out in late September or early October, the most useful thing you can do is "
+      ? "Before ballots go out this November, the most useful thing you can do is "
       : "Before your ballot goes back this November, the most important thing is to ";
     const close = noidCombined ? " Can we count on you?"
                 : hasUnd ? " Can we count on you to make that call?"
@@ -508,3 +509,6 @@ function render(){
 }
 render();
 </script>
+
+<div id="expired-screen" style="display:none;"><div class="gate" style="font-size:1.3rem;line-height:1.5;"><b>This script has expired.</b><br><br>You will get a new link prior to your shift.</div></div>
+<script>(function(){var E=1788656400000;function c(){if(Date.now()>E){var h=document.querySelector('header');if(h)h.style.display='none';var m=document.querySelector('main');if(m)m.style.display='none';var f=document.querySelector('footer');if(f)f.style.display='none';var x=document.getElementById('expired-screen');if(x)x.style.display='block';var b=document.querySelector('.daily-banner');if(b){b.textContent='Expired';b.style.background='#5A6478';}}}c();setInterval(c,30000);})();</script>
