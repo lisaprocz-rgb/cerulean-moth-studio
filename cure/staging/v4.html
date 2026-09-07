@@ -221,7 +221,9 @@ function renderRef(c){
     "NO SECRECY ENVELOPE": "seal your ballot in the yellow secrecy envelope before the outer envelope",
     "NO SIGNATURE": "sign the outer return envelope",
     "NO ID": "verify your ID with the **"+c.boe+"**",
-    "RETURNED AFTER DEADLINE": "send your ballot back early so it arrives by 8 PM on Election Day",
+    "RETURNED AFTER DEADLINE": (c && c.dropbox)
+      ? "return your ballot early, using one of your county's ballot drop boxes where possible, which is the most reliable way to get it in on time"
+      : "send your ballot back early so it arrives by 8 PM on Election Day",
     "UNDELIVERABLE": "confirm your mailing address with the county"
   };
   // One issue -> the detailed statement; more than one -> a short lead-in and a list
