@@ -509,14 +509,44 @@ const NEXT = cls => '<button class="nextbtn '+cls+'" onclick="nextVoter()">→ N
 function voicemailBlock(c){
   const office = (c && c.boe) ? c.boe : "your county elections office";
   const ph = (c && c.phone) ? c.phone : "";
-  const action = ph
-    ? ("Please give the **" + office + "** a call at " + ph + " to find out what to fix.")
-    : ("Please reach out to the **" + office + "** to find out what to fix.");
-  const msg = "Hi, this message is for [Voter Name]. I'm a volunteer with the Pennsylvania Democrats' Voter Assistance team. "
-    + "We're calling because there was a problem with your mail ballot that prevented it from counting in a recent election. "
-    + "If you haven't already resolved the issue, it will likely keep your ballot from counting in the upcoming election. "
-    + "We want to help you get it taken care of. " + action + " "
-    + "If you have any questions, you can also reach our Voter Assistance Hotline at 1-833-728-6837. Thank you.";
+  const intro = "Hi, this message is for [Voter Name]. I'm a volunteer with the Pennsylvania Democrats' Voter Assistance team. ";
+  const hotline = " If you have any questions, you can also reach our Voter Assistance Hotline at 1-833-728-6837. Thank you.";
+  const checked = [...document.querySelectorAll(".ffcb:checked")].map(cb => ffTips[+cb.dataset.i]);
+  const labs = checked.map(([lab]) => lab);
+  const hasUnd  = labs.indexOf("UNDELIVERABLE") !== -1;
+  const hasNoID = labs.indexOf("NO ID") !== -1;
+  let msg;
+  if (hasUnd || hasNoID){
+    // Actionable with the county (address update / ID verification).
+    const action = ph
+      ? ("Please give the **" + office + "** a call at " + ph + " to find out what to fix.")
+      : ("Please reach out to the **" + office + "** to find out what to fix.");
+    msg = intro
+      + "We're calling because there was a problem with your mail ballot that prevented it from counting in a recent election. "
+      + "If you haven't already resolved the issue, it will likely keep your ballot from counting in the upcoming election. "
+      + "We want to help you get it taken care of. " + action + hotline;
+  } else {
+    // Envelope errors / deadline / other: nothing to fix ahead of time. Name the error(s), then a brief how-to.
+    const VM_FIX = {
+      "INCORRECT DATE": "date the outer return envelope with the date you sign it",
+      "NO DATE": "date the outer return envelope with the date you sign it",
+      "NO SECRECY ENVELOPE": "seal your ballot in the yellow secrecy envelope before sealing the outer envelope",
+      "NO SIGNATURE": "sign the outer return envelope",
+      "RETURNED AFTER DEADLINE": "send your ballot back early so it arrives by 8 PM on Election Day"
+    };
+    const reasons = [], fixes = [];
+    labs.forEach(l => {
+      if (FF_REASON[l] && reasons.indexOf(FF_REASON[l]) === -1) reasons.push(FF_REASON[l]);
+      if (VM_FIX[l] && fixes.indexOf(VM_FIX[l]) === -1) fixes.push(VM_FIX[l]);
+    });
+    const problem = reasons.length
+      ? "We're calling because your mail ballot did not count in a recent election. The problem was that " + joinAnd(reasons) + ". "
+      : "We're calling because there was a problem with your mail ballot that prevented it from counting in a recent election. ";
+    const reminder = fixes.length
+      ? "There's nothing you need to fix ahead of time. For the upcoming election, just be sure to " + joinAnd(fixes) + "."
+      : "There's nothing you need to fix ahead of time. When your ballot for the upcoming election arrives, complete it carefully and return it on time.";
+    msg = intro + problem + reminder + hotline;
+  }
   const t = fmt(msg, c.phone)
     .replace("[Voter Name]", '<span class="nm">[Voter Name]</span>')
     .replace("1-833-728-6837", '<span class="num">1-833-728-6837</span>');
