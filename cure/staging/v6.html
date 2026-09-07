@@ -460,11 +460,9 @@ const NEXT = cls => '<button class="nextbtn '+cls+'" onclick="nextVoter()">→ N
 function voicemailBlock(c){
   const office = (c && c.boe) ? c.boe : "your county elections office";
   const ph = (c && c.phone) ? c.phone : "";
-  const mailAddr = (WORDING.noidAddr && WORDING.noidAddr[county]) ? WORDING.noidAddr[county] : "";
   let action;
-  if (mailAddr)   action = "Please mail a letter to verify your ID, addressed to **" + mailAddr + "**.";
-  else if (ph)    action = "Please give the **" + office + "** a call at " + ph + " to confirm what they need.";
-  else            action = "Please reach out to the **" + office + "** to confirm what they need.";
+  if (ph)  action = "Please give the **" + office + "** a call at " + ph + " to find out exactly what they need from you to fix it.";
+  else     action = "Please reach out to the **" + office + "** to find out exactly what they need from you to fix it.";
   const msg = "Hi, this message is for [Voter Name]. I'm a volunteer with the Pennsylvania Democrats' Voter Assistance team. "
     + "We're calling because there was an ID verification issue with your mail ballot that prevented it from counting in the 2026 primary. "
     + "If you haven't already resolved the issue, it will likely keep your ballot from counting in the upcoming election. "
