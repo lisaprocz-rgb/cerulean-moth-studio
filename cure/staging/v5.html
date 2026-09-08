@@ -431,8 +431,8 @@ function renderFFTips(){
   if (showTransfer){
     const num = c.phone || "";
     const officeName = c.boe || (county + " County Board of Elections");
-    const spoken = "For your convenience, I can transfer you to the Board of Elections right now. " +
-      "Before I do this transfer, let me give you the phone number of your elections office in case we get disconnected. " +
+    const spoken = "For your convenience, I can transfer you to the elections office right now. " +
+      "Before I do this transfer, let me give you their phone number in case we get disconnected. " +
       (num ? ("The phone number for the **" + officeName + "** is " + num + ". ")
            : ("I'll give you the phone number for the **" + officeName + "**. ")) +
       "Once I do the transfer, I will no longer be on the line, so wait for assistance from the elections office.";
