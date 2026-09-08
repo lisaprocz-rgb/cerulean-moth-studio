@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>Cure Call Companion 5</title>
+<title>Cure Script - Undeliverable - Tuesday, September 8, 2026</title>
 <style>
   :root{
     --bg:#FBF8EC; --card:#FFFFFF; --ink:#1A2233; --muted:#5A6478; --navy:#071539;
@@ -104,8 +104,6 @@
   .boebtn:hover{opacity:.92;}
   .copied{margin-left:12px;color:var(--phone);font-weight:700;font-size:.95rem;}
   .boehint{color:var(--muted);font-size:.85rem;margin-top:10px;}
-  .volnote{color:var(--warn); background:var(--warn-bg); border-radius:8px; font-size:.9rem;
-           font-weight:700; font-style:italic; padding:8px 12px; margin:10px 0;}
   .boebtnwrap{text-align:center;margin-bottom:2px;}
   .boebox{border-left-color:var(--phone);}
   /* Voicemail block: deliberately distinct from the shaded read steps */
@@ -122,6 +120,8 @@
   .vmail-body .vb{font-weight:700; color:var(--navy);}
   .vmail-body .num{color:var(--phone); font-weight:700; white-space:nowrap;}
   @media(max-width:640px){ .read{font-size:1rem;} select{min-width:150px; flex:1;} .vmail-body{font-size:1.02rem;} }
+  .daily-banner{background:#9B1C31;color:#fff;font-weight:800;font-size:.85rem;padding:6px 12px;border-radius:8px;align-self:center;letter-spacing:.3px;white-space:nowrap;}
+  #expired-screen{max-width:860px;margin:0 auto;padding:48px 16px;}
 </style>
 
 <div class="topfreeze">
@@ -131,8 +131,7 @@
   <div class="titles">
     <div class="t1">Voter Assistance</div>
     <div class="t2">Summer Cure Script (Undeliverable)</div>
-  </div>
-</div></div>
+  </div> <div class="daily-banner">For Tuesday, September 8, 2026 only</div></div></div>
 
 <header>
 <meta name="robots" content="noindex,nofollow"><div class="wrap">
@@ -428,20 +427,13 @@ function renderFFTips(){
   const transferEligible = labsForAsk.indexOf("NO ID") !== -1 || labsForAsk.indexOf("UNDELIVERABLE") !== -1;
   const showTransfer = transferEligible && officeOpenNow();
   let ask = ffCommitment(labsForAsk, c);
+  if (ask && showTransfer)
+    ask += " For your convenience, I can transfer you to the Board of Elections right now.";
   if (ask) h += '<div class="step"><div class="tag">Ask for the commitment</div><div class="read">'+fmt(ask, c.phone)+'</div></div>';
   if (showTransfer){
     const num = c.phone || "";
-    const officeName = c.boe || (county + " County Board of Elections");
-    const spoken1 = "For your convenience, I can transfer you to the elections office right now.";
-    const spoken2 = "Before I do this transfer, let me give you their phone number in case we get disconnected. " +
-      (num ? ("The phone number for the **" + officeName + "** is " + num + ". ")
-           : ("I'll give you the phone number for the **" + officeName + "**. ")) +
-      "Once I do the transfer, I will no longer be on the line, so wait for assistance from the elections office.";
     h += '<div class="step"><div class="tag">Transfer to the Board of Elections</div>' +
          '<div class="read boebox">' +
-           '<div>' + fmt(spoken1, c.phone) + '</div>' +
-           '<div class="volnote">&#9888; Volunteer: wait for the voter to say yes before you start the transfer.</div>' +
-           '<div style="margin-bottom:12px">' + fmt(spoken2, c.phone) + '</div>' +
            '<div class="boebtnwrap">' +
            (num ? '<button type="button" class="boebtn" data-copy="'+esc(num)+'">Copy '+esc(county)+' BOE number</button><span class="copied" hidden>Copied</span>'
                 : '<span class="boebtn" style="cursor:default">County number is in the panel below</span>') +
@@ -516,3 +508,6 @@ function render(){
 }
 render();
 </script>
+
+<div id="expired-screen" style="display:none;"><div class="gate" style="font-size:1.3rem;line-height:1.5;"><b>This script has expired.</b><br><br>You will get a new link prior to your shift.</div></div>
+<script>(function(){var E=1788915600000;function c(){if(Date.now()>E){var h=document.querySelector('header');if(h)h.style.display='none';var m=document.querySelector('main');if(m)m.style.display='none';var f=document.querySelector('footer');if(f)f.style.display='none';var x=document.getElementById('expired-screen');if(x)x.style.display='block';var b=document.querySelector('.daily-banner');if(b){b.textContent='Expired';b.style.background='#5A6478';}}}c();setInterval(c,30000);})();</script>

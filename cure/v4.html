@@ -104,6 +104,8 @@
   .boebtn:hover{opacity:.92;}
   .copied{margin-left:12px;color:var(--phone);font-weight:700;font-size:.95rem;}
   .boehint{color:var(--muted);font-size:.85rem;margin-top:10px;}
+  .volnote{color:var(--warn); background:var(--warn-bg); border-radius:8px; font-size:.9rem;
+           font-weight:700; font-style:italic; padding:8px 12px; margin:10px 0;}
   .boebtnwrap{text-align:center;margin-bottom:2px;}
   .boebox{border-left-color:var(--phone);}
   /* Voicemail block: deliberately distinct from the shaded read steps */
@@ -399,7 +401,10 @@ function ffCommitment(labels, c){
                           : undG === "both"  ? " Can we count on you to reach out?"
                           :                    " Can we count on you to make that call?")
                 : " Can we count on you?";
-    return lead + joinAnd(parts) + "." + close;
+    let body = lead + joinAnd(parts) + ".";
+    if (labels.indexOf("RETURNED AFTER DEADLINE") !== -1 && c && c.dropbox)
+      body += " A drop box is the safest option if one is convenient for you.";
+    return body + close;
   }
   if (hasNoID) return noidMail ? "Can we count on you to mail that letter?" : "Can we count on you to make that call?";
   return "";
@@ -458,7 +463,7 @@ function renderFFTips(){
         t = t.replace('your ballot did not count in the 2026 primary because of an "ID verification issue,"',
                       'you have had an "ID verification issue" with your mail ballot,');
       // Only mention a drop box where the county actually has one (matches the FAQ).
-      if (lab === "RETURNED AFTER DEADLINE" && c.dropbox && UNIVERSAL.dropbox) t += " " + UNIVERSAL.dropbox;
+      if (lab === "RETURNED AFTER DEADLINE" && c.dropbox && UNIVERSAL.dropbox) t += " Because timing was the problem last time, dropping your ballot in one of your county's drop boxes is the surest way to beat the deadline, since it skips the mail.";
     }
     t = t.replace(/\b(calling or emailing|call or email|calling|emailing|call|email|mail a letter)\b/gi, "**$1**");  // bold the action instruction
     h += '<div class="step"><div class="tag">'+esc(lab)+'</div><div class="read">' +
@@ -470,13 +475,20 @@ function renderFFTips(){
   const transferEligible = labsForAsk.indexOf("NO ID") !== -1 || labsForAsk.indexOf("UNDELIVERABLE") !== -1;
   const showTransfer = transferEligible && officeOpenNow();
   let ask = ffCommitment(labsForAsk, c);
-  if (ask && showTransfer)
-    ask += " For your convenience, I can transfer you to the Board of Elections right now.";
   if (ask) h += '<div class="step"><div class="tag">Ask for the commitment</div><div class="read">'+fmt(ask, c.phone)+'</div></div>';
   if (showTransfer){
     const num = c.phone || "";
+    const officeName = c.boe || (county + " County Board of Elections");
+    const spoken1 = "For your convenience, I can transfer you to the elections office right now.";
+    const spoken2 = "Before I do this transfer, let me give you their phone number in case we get disconnected. " +
+      (num ? ("The phone number for the **" + officeName + "** is " + num + ". ")
+           : ("I'll give you the phone number for the **" + officeName + "**. ")) +
+      "Once I do the transfer, I will no longer be on the line, so wait for assistance from the elections office.";
     h += '<div class="step"><div class="tag">Transfer to the Board of Elections</div>' +
          '<div class="read boebox">' +
+           '<div>' + fmt(spoken1, c.phone) + '</div>' +
+           '<div class="volnote">&#9888; Volunteer: wait for the voter to say yes before you start the transfer.</div>' +
+           '<div style="margin-bottom:12px">' + fmt(spoken2, c.phone) + '</div>' +
            '<div class="boebtnwrap">' +
            (num ? '<button type="button" class="boebtn" data-copy="'+esc(num)+'">Copy '+esc(county)+' BOE number</button><span class="copied" hidden>Copied</span>'
                 : '<span class="boebtn" style="cursor:default">County number is in the panel below</span>') +
