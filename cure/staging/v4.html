@@ -401,7 +401,10 @@ function ffCommitment(labels, c){
                           : undG === "both"  ? " Can we count on you to reach out?"
                           :                    " Can we count on you to make that call?")
                 : " Can we count on you?";
-    return lead + joinAnd(parts) + "." + close;
+    let body = lead + joinAnd(parts) + ".";
+    if (labels.indexOf("RETURNED AFTER DEADLINE") !== -1 && c && c.dropbox)
+      body += " Where possible, use one of your county's drop boxes, which is the most reliable way to get your ballot in on time.";
+    return body + close;
   }
   if (hasNoID) return noidMail ? "Can we count on you to mail that letter?" : "Can we count on you to make that call?";
   return "";
