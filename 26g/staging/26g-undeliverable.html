@@ -222,20 +222,6 @@ function fmt(text, phone){
   t = t.replace(/\*\*(.+?)\*\*/g, '<b class="hl">$1</b>');
   return t.replace(/provisional ballot/gi, m => "<b>"+m+"</b>");
 }
-// One sentence per line. Volunteers read these aloud, and an unbroken paragraph is
-// where people lose their place (Lisa 2026-09-20). Conservative on purpose: it will
-// not break after an abbreviation, an initial, or inside a web address.
-// NOTE: backslashes are doubled because this whole page is a non-raw Python string.
-const NO_BREAK = /(?:^|\s)(?:a\.m|p\.m|Mr|Mrs|Ms|Dr|St|Ave|Rd|Ste|No|Jr|Sr|vs|etc|approx|Inc|U\.S|[A-Za-z])\.$/i;
-function spaced(t){
-  if (!t) return t;
-  return String(t).replace(/([.!?])\s+(?=["'(]?[A-Z0-9])/g, function(m, punct, off, whole){
-    const before = whole.slice(Math.max(0, off - 14), off + 1);
-    if (NO_BREAK.test(before)) return m;
-    if (/https?:\/\/\S*$/.test(whole.slice(0, off + 1))) return m;   // inside a link
-    return punct + "\n";
-  });
-}
 function linkify(t){
   return t.replace(/https?:\/\/[^\s<]+[^\s<.,)]/g, u => '<a href="'+u+'" target="_blank" rel="noopener">'+u+'</a>');
 }
@@ -244,7 +230,7 @@ function linkify(t){
 function faqBody(a){
   const s = String(a == null ? "" : a);
   if (s.indexOf("[[HTML]]") === 0) return '<div class="rich">' + s.slice(8) + '</div>';
-  return '<p>' + linkify(esc(spaced(s)).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')) + '</p>';
+  return '<p>' + linkify(esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')) + '</p>';
 }
 function renderRef(c){
   $("faqtitle").textContent = county + " County FAQ";
