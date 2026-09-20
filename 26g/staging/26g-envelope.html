@@ -607,7 +607,7 @@ function voicemailBlock(c){
   const intro = "Hi, this message is for [Voter Name]. This is [YOUR NAME] from the PADems. The **"
     + office + "** has reported an error with your mail ballot, which could prevent it from being counted. "
     + errorSentence() + " ";
-  const hotline = " If you have any questions, you can also reach our Voter Assistance Hotline at 1-833-728-6837. Thank you.";
+  const hotline = " If you have any questions, you can reach our Voter Assistance Hotline at 1-833-728-6837. Thank you.";
   const checked = [...document.querySelectorAll(".ffcb:checked")].map(cb => ffTips[+cb.dataset.i]);
   const labs = checked.map(([lab]) => lab);
   const hasUnd  = labs.indexOf("UNDELIVERABLE") !== -1;
