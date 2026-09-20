@@ -76,8 +76,10 @@
   .step{margin:0 0 14px;}
   .step .tag{font-size:.72rem; font-weight:700; letter-spacing:1px; text-transform:uppercase;
              color:var(--muted); margin:0 0 4px;}
-  /* Read-aloud boxes: bigger type, open leading, and real line breaks between
-     sentences, so a volunteer can hold their place while speaking. */
+  /* Read-aloud boxes: bigger type and open leading. Sentences run on as normal
+     prose; the one-sentence-per-line version looked odd and did not help
+     (Lisa 2026-09-20). pre-line stays so a real break typed in the workbook
+     still shows. */
   .read{background:var(--read-bg); border-left:5px solid var(--read-bar);
         border-radius:0 10px 10px 0; padding:16px 20px; font-size:1.2rem;
         line-height:1.7; white-space:pre-line;}
@@ -488,13 +490,13 @@ function renderFFTips(){
     const labs = checked.map(([lab]) => lab);
     const body = (whyPoint(c) + " " + whyTail(labs)).trim();
     const line = ffReassureTmpl.replace("{BODY}", body);
-    h += '<div class="step"><div class="tag">'+esc(FF_REASSURE_LABEL)+'</div><div class="read">'+fmt(spaced(line), c.phone)+'</div></div>';
+    h += '<div class="step"><div class="tag">'+esc(FF_REASSURE_LABEL)+'</div><div class="read">'+fmt(line, c.phone)+'</div></div>';
   }
   if (ffWalk && checked.some(([lab]) => FF_ENVELOPE.indexOf(lab) !== -1)){
     let wt = ffWalk[1].replace("{PHONE}", phone);
     if (c.dropbox && UNIVERSAL.dropbox) wt += " " + UNIVERSAL.dropbox;  // encourage drop boxes where the county has them
     h += '<div class="step"><div class="tag">'+esc(ffWalk[0])+'</div><div class="read">' +
-         fmt(spaced(wt), c.phone) + '</div></div>';
+         fmt(wt, c.phone) + '</div></div>';
   }
   checked.forEach(([lab, txt]) => {
     let t;
@@ -514,12 +516,12 @@ function renderFFTips(){
     }
     t = t.replace(/\b(calling or emailing|call or email|calling|emailing|call|email|mail a letter)\b/gi, "**$1**");  // bold the action instruction
     h += '<div class="step"><div class="tag">'+esc(lab)+'</div><div class="read">' +
-         fmt(spaced(t), c.phone) + '</div></div>';
+         fmt(t, c.phone) + '</div></div>';
   });
   // Provisional fallback, read after the fix for every error.
   if (UNIVERSAL.provisional){
     h += '<div class="step"><div class="tag">If you can&rsquo;t fix it in time</div><div class="read">' +
-         fmt(spaced(UNIVERSAL.provisional.replace("{PHONE}", phone)), c.phone) + '</div></div>';
+         fmt(UNIVERSAL.provisional.replace("{PHONE}", phone), c.phone) + '</div></div>';
   }
   const labsForAsk = checked.map(([lab]) => lab);
   // Live transfer (spoken line + copy-number panel) shows together, only for No ID /
@@ -527,7 +529,7 @@ function renderFFTips(){
   const transferEligible = labsForAsk.indexOf("NO ID") !== -1 || labsForAsk.indexOf("UNDELIVERABLE") !== -1;
   const showTransfer = transferEligible && officeOpenNow();
   let ask = ffCommitment(labsForAsk, c);
-  if (ask) h += '<div class="step"><div class="tag">Ask for the commitment</div><div class="read">'+fmt(spaced(ask), c.phone)+'</div></div>';
+  if (ask) h += '<div class="step"><div class="tag">Ask for the commitment</div><div class="read">'+fmt(ask, c.phone)+'</div></div>';
   if (showTransfer){
     const num = c.phone || "";
     const officeName = c.boe || (county + " County Board of Elections");
@@ -589,7 +591,7 @@ function voicemailBlock(c){
     + "There is still time to get this settled. " + action + " "
     + "If you can't fix this before Election Day, November 3rd, you can vote at your polling place by provisional ballot. "
     + "If you have any questions, you can reach our Voter Assistance Hotline at 1-833-728-6837. Thank you.";
-  const t = fmt(spaced(msg), c.phone)
+  const t = fmt(msg, c.phone)
     .replace("[Voter Name]", '<span class="nm">[Voter Name]</span>')
     .replace("[YOUR NAME]", '<span class="nm">[YOUR NAME]</span>')
     .replace("1-833-728-6837", '<span class="num">1-833-728-6837</span>');
@@ -621,10 +623,10 @@ function render(){
     voicemailBlock(c) +
     '<div class="cty">Reading for <span>'+esc(county)+' County</span></div>' +
     '<div class="step"><div class="tag">Step 1 &middot; Opening</div>' +
-      step1Lines(c).slice(0, 1).map(s => '<div class="read">'+fmt(spaced(s))+'</div>').join("") +
+      step1Lines(c).slice(0, 1).map(s => '<div class="read">'+fmt(s)+'</div>').join("") +
       (opener ? '<div class="read">'+esc(opener)+'</div>' : '') + '</div>' +
     '<div id="fftips"></div>' +
-    '<div class="step"><div class="tag">Step 4 &middot; Closing</div><div class="read">'+fmt(spaced(UNIVERSAL.s4))+'</div></div>' +
+    '<div class="step"><div class="tag">Step 4 &middot; Closing</div><div class="read">'+fmt(UNIVERSAL.s4)+'</div></div>' +
     NEXT("bottom");
   renderFFTips();
 }
