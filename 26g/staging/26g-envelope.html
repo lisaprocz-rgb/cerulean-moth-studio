@@ -406,29 +406,8 @@ function step1Lines(c){
                          .split("{ERROR}").join(errorSentence()));
 }
 
-function ffWhyBody(labels, multi){
-  const hasUnd = labels.indexOf("UNDELIVERABLE") !== -1;
-  let s;
-  if (multi){
-    const hasOther = labels.indexOf("OTHER") !== -1;
-    const reasons = ffReasonListShort(labels.filter(l => l !== "OTHER"));
-    s = reasons
-      ? "Your ballots have been canceled in recent elections because of " + reasons + "."
-      : "Your ballots have been canceled in recent elections.";
-    if (hasOther)
-      s += " In another election, your ballot was not counted because of an unspecified error labeled \"other,\" which doesn't allow us to tell you specifically what was wrong.";
-    s += " We're calling to let you know how to avoid these problems.";
-  } else {
-    // Present tense: this is the ballot the county is holding right now, not a past election.
-    const reasons = ffReasonList(labels.filter(l => l !== "OTHER"));
-    s = reasons
-      ? "The county has your mail ballot for the November election, but " + reasons + ". " + whyTail(labels)
-      : "The county has flagged a problem with your mail ballot but recorded it only as \"other,\" which doesn't tell us specifically what is wrong. We're calling to help you find out and get it fixed.";
-  }
-  if (hasUnd)
-    s += " Until the county elections office has a mailing address that works for you, they will not be able to get a ballot into your hands, so this is worth taking care of now.";
-  return s;
-}
+// (ffWhyBody removed 2026-09-20: the WHY block is now whyPoint() + whyTail(),
+//  and the old body was dead code carrying stale wording.)
 // Noun phrasing used in the "double-check ___" part of the commitment.
 const FF_CHECK = {
   "INCORRECT DATE": "the date", "NO DATE": "the date",

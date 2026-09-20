@@ -353,24 +353,8 @@ function step1Lines(c){
                          .split("{REASON}").join(reason)
                          .split("{ERROR}").join(errorSentence()));
 }
-function ffWhyBody(labels, multi){
-  const hasUnd = labels.indexOf("UNDELIVERABLE") !== -1;
-  let s;
-  if (multi){
-    const reasons = ffReasonListShort(labels.filter(l => l !== "OTHER"));
-    s = reasons
-      ? "Your ballots have been canceled in recent elections because of " + reasons + ". We're calling to let you know how to fix these problems."
-      : "Your ballots have been canceled in recent elections. We're calling to let you know how to fix these problems.";
-  } else {
-    const reasons = ffReasonList(labels.filter(l => l !== "OTHER"));
-    s = reasons
-      ? "The county has not been able to verify the ID on your mail ballot application. As it stands your mail ballot will not be counted, and we're calling to let you know how to get it fixed."
-      : "The county has not been able to verify the ID on your mail ballot application. As it stands your mail ballot will not be counted, and we're calling to let you know how to get it fixed.";
-  }
-  if (hasUnd)
-    s += " Ballots for the November election go out soon, and unless you update your address with the county elections office, your ballot will likely be returned by USPS to the county elections office again.";
-  return s;
-}
+// (ffWhyBody removed 2026-09-20: the WHY block is now whyPoint() + whyTail(),
+//  and the old body was dead code carrying stale wording.)
 // Noun phrasing used in the "double-check ___" part of the commitment.
 const FF_CHECK = {
   "INCORRECT DATE": "the date", "NO DATE": "the date",
