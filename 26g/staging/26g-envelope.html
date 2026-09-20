@@ -589,8 +589,11 @@ function labs0(){
 function voicemailBlock(c){
   const office = (c && c.boe) ? c.boe : "your county elections office";
   const ph = (c && c.phone) ? c.phone : "";
-  // Same order as Step 1: say why you are calling before you introduce yourself.
-  const intro = "Hi, this message is for [Voter Name]. I'm calling to make sure you are aware that the **" + office + "** has reported an error with your mail ballot. " + errorSentence() + " I'm a volunteer with the Pennsylvania Democrats' Voter Assistance team. ";
+  // Voicemail opening (Lisa 2026-09-19): who is calling and what the county found, in one
+  // breath, then the error. No separate introduction and no repeat of the error afterwards.
+  const intro = "Hi, this message is for [Voter Name]. This is [YOUR NAME] from the PADems, making sure you know that the **"
+    + office + "** has reported an error with your mail ballot, which could prevent it from being counted. "
+    + errorSentence() + " ";
   const hotline = " If you have any questions, you can also reach our Voter Assistance Hotline at 1-833-728-6837. Thank you.";
   const checked = [...document.querySelectorAll(".ffcb:checked")].map(cb => ffTips[+cb.dataset.i]);
   const labs = checked.map(([lab]) => lab);
@@ -602,9 +605,7 @@ function voicemailBlock(c){
     const action = ph
       ? ("Please give the **" + office + "** a call at " + ph + " to find out what to fix.")
       : ("Please reach out to the **" + office + "** to find out what to fix.");
-    msg = intro
-      + "There is a problem with it that will keep it from being counted unless it is corrected. "
-      + "There is still time to fix it. " + action + hotline;
+    msg = intro + "There is still time to fix it. " + action + hotline;
   } else {
     // Envelope errors / deadline / other: nothing to fix ahead of time. Name the error(s), then a brief how-to.
     const dropPref = (c && c.dropbox)
@@ -624,9 +625,7 @@ function voicemailBlock(c){
       if (FF_REASON[l] && reasons.indexOf(FF_REASON[l]) === -1) reasons.push(FF_REASON[l]);
       if (VM_FIX[l] && fixes.indexOf(VM_FIX[l]) === -1) fixes.push(VM_FIX[l]);
     });
-    const problem = reasons.length
-      ? "The county has it, but " + joinAnd(reasons) + ", so as it stands it will not be counted. "
-      : "The county has flagged a problem with it that will keep it from being counted. ";
+    const problem = "";   // the intro already names the error; saying it twice was redundant
     const reminder = ph
       ? ("There is still time to fix this. Please call the **" + office + "** at " + ph + " and ask how to correct it. "
          + "And no matter what, you can vote by provisional ballot at your polling place on Election Day, Tuesday, November 3.")
@@ -636,6 +635,7 @@ function voicemailBlock(c){
   }
   const t = fmt(msg, c.phone)
     .replace("[Voter Name]", '<span class="nm">[Voter Name]</span>')
+    .replace("[YOUR NAME]", '<span class="nm">[YOUR NAME]</span>')
     .replace("1-833-728-6837", '<span class="num">1-833-728-6837</span>');
   return '<div class="vmail">' +
     '<div class="vmail-hd">&#128222; Voicemail &mdash; leave this if no one answers</div>' +

@@ -514,13 +514,16 @@ function voicemailBlock(c){
   let action;
   if (ph)  action = "Please give the **" + office + "** a call at " + ph + " to find out exactly what they need from you to fix it.";
   else     action = "Please reach out to the **" + office + "** to find out exactly what they need from you to fix it.";
-  // Reason for the call before the introduction (Lisa 2026-09-19).
-  const msg = "Hi, this message is for [Voter Name]. I'm calling to make sure you are aware that the **" + office + "** has reported a problem with your mail ballot. " + errorSentence() + " "
-    + "I'm a volunteer with the Pennsylvania Democrats' Voter Assistance team. "
+  // Voicemail opening (Lisa 2026-09-19): who is calling and what the county found, in one
+  // breath, then the error. No separate introduction afterwards.
+  const msg = "Hi, this message is for [Voter Name]. This is [YOUR NAME] from the PADems, making sure you know that the **"
+    + office + "** has reported a problem with your mail ballot, which could prevent it from being counted. "
+    + errorSentence() + " "
     + "There is still time to get this settled. " + action + " "
     + "If you have any questions, you can also reach our Voter Assistance Hotline at 1-833-728-6837. Thank you.";
   const t = fmt(msg, c.phone)
     .replace("[Voter Name]", '<span class="nm">[Voter Name]</span>')
+    .replace("[YOUR NAME]", '<span class="nm">[YOUR NAME]</span>')
     .replace("1-833-728-6837", '<span class="num">1-833-728-6837</span>');
   return '<div class="vmail">' +
     '<div class="vmail-hd">&#128222; Voicemail &mdash; leave this if no one answers</div>' +
