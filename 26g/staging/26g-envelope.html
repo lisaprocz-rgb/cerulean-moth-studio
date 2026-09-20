@@ -591,7 +591,7 @@ function voicemailBlock(c){
   const ph = (c && c.phone) ? c.phone : "";
   // Voicemail opening (Lisa 2026-09-19): who is calling and what the county found, in one
   // breath, then the error. No separate introduction and no repeat of the error afterwards.
-  const intro = "Hi, this message is for [Voter Name]. This is [YOUR NAME] from the PADems, making sure you know that the **"
+  const intro = "Hi, this message is for [Voter Name]. This is [YOUR NAME] from the PADems. The **"
     + office + "** has reported an error with your mail ballot, which could prevent it from being counted. "
     + errorSentence() + " ";
   const hotline = " If you have any questions, you can also reach our Voter Assistance Hotline at 1-833-728-6837. Thank you.";
