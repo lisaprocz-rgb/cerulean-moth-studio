@@ -76,29 +76,32 @@
   .step{margin:0 0 14px;}
   .step .tag{font-size:.72rem; font-weight:700; letter-spacing:1px; text-transform:uppercase;
              color:var(--muted); margin:0 0 4px;}
+  /* Read-aloud boxes: bigger type, open leading, and real line breaks between
+     sentences, so a volunteer can hold their place while speaking. */
   .read{background:var(--read-bg); border-left:5px solid var(--read-bar);
-        border-radius:0 10px 10px 0; padding:12px 16px; font-size:1.08rem;}
+        border-radius:0 10px 10px 0; padding:16px 20px; font-size:1.2rem;
+        line-height:1.7; white-space:pre-line;}
   .read b.phone{color:var(--ink); white-space:nowrap;}
   .read b.email{color:var(--ink); word-break:break-all;}
   .read b.hl{color:var(--ink);}
   footer{color:var(--muted); font-size:.78rem; padding:10px 16px; max-width:860px; margin:0 auto;}
   .faq{margin-top:28px; border-top:2px solid var(--line); padding-top:14px;}
-  .faq h2{font-size:1rem; color:var(--navy); margin:0 0 2px;}
+  .faq h2{font-size:1.25rem; color:var(--navy); margin:0 0 4px;}
   /* composed drop box / satellite answers use real line breaks, one per location */
   .faq details p{white-space:pre-line;}
-  .faq .sub{color:var(--muted); font-size:.82rem; margin:0 0 12px;}
+  .faq .sub{color:var(--muted); font-size:.95rem; margin:0 0 16px;}
   .contact{display:flex; flex-wrap:wrap; gap:6px 22px; align-items:baseline;
            background:var(--card); border:1px solid var(--line); border-radius:12px;
-           padding:10px 14px; margin-bottom:14px; font-size:.92rem;}
+           padding:14px 18px; margin-bottom:18px; font-size:1.02rem; line-height:1.6;}
   .contact .office{flex-basis:100%; font-weight:700; color:var(--navy); font-size:1.02rem;}
   .contact .ph{font-size:1.25rem; font-weight:700; color:var(--phone); white-space:nowrap;}
   .contact a{color:inherit; text-decoration:none;}
   .contact .links a{color:var(--accent); margin-right:14px; word-break:break-all; text-decoration:underline;}
   .contact .lbl{color:var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:.6px; margin-right:5px;}
   details{background:var(--card); border:1px solid var(--line); border-radius:10px;
-          margin-bottom:8px; padding:9px 14px; font-size:.92rem;}
-  summary{cursor:pointer; font-weight:600; color:var(--navy);}
-  details p{margin:8px 0 2px;}
+          margin-bottom:12px; padding:14px 18px; font-size:1.06rem;}
+  summary{cursor:pointer; font-weight:700; color:var(--navy); font-size:1.1rem; line-height:1.5;}
+  details p{margin:12px 0 2px; line-height:1.7;}
   details a{color:var(--accent); word-break:break-all;}
   .boebtn{display:inline-flex;align-items:center;gap:9px;background:var(--btn-on);color:var(--btn-on-ink);
           font:inherit;font-weight:700;font-size:1.05rem;padding:13px 22px;border-radius:11px;
@@ -118,12 +121,12 @@
             padding:5px 12px; border-radius:999px; margin-bottom:10px;}
   .vmail-sub{color:var(--warn); font-weight:700; font-size:.82rem; margin:0 0 8px;}
   .vmail-body{background:var(--card); border-radius:10px; padding:14px 16px;
-              font-size:1.12rem; line-height:1.6; color:var(--ink);
+              font-size:1.18rem; line-height:1.75; color:var(--ink); white-space:pre-line;
               border-left:5px solid var(--warn);}
   .vmail-body b{font-weight:700; color:var(--navy);}
   .vmail-body .nm{background:var(--chip); border-radius:5px; padding:1px 7px; font-weight:700; color:var(--ink);}
   .vmail-body .num{color:var(--phone); font-weight:700; white-space:nowrap;}
-  @media(max-width:640px){ .read{font-size:1rem;} select{min-width:150px; flex:1;} .vmail-body{font-size:1.02rem;} }
+  @media(max-width:640px){ .read{font-size:1.08rem;} select{min-width:150px; flex:1;} .vmail-body{font-size:1.06rem;} details{font-size:1rem;} summary{font-size:1.04rem;} }
   .daily-banner{background:#8C4A00;color:#fff;font-weight:800;font-size:.85rem;padding:6px 12px;border-radius:8px;align-self:center;letter-spacing:.3px;white-space:nowrap;}
   #expired-screen,#notyet-screen{max-width:860px;margin:0 auto;padding:48px 16px;}
 </style>
@@ -193,6 +196,20 @@ function fmt(text, phone){
   t = t.replace(/\*\*(.+?)\*\*/g, '<b class="hl">$1</b>');
   return t.replace(/provisional ballot/gi, m => "<b>"+m+"</b>");
 }
+// One sentence per line. Volunteers read these aloud, and an unbroken paragraph is
+// where people lose their place (Lisa 2026-09-20). Conservative on purpose: it will
+// not break after an abbreviation, an initial, or inside a web address.
+// NOTE: backslashes are doubled because this whole page is a non-raw Python string.
+const NO_BREAK = /(?:^|\s)(?:a\.m|p\.m|Mr|Mrs|Ms|Dr|St|Ave|Rd|Ste|No|Jr|Sr|vs|etc|approx|Inc|U\.S|[A-Za-z])\.$/i;
+function spaced(t){
+  if (!t) return t;
+  return String(t).replace(/([.!?])\s+(?=["'(]?[A-Z0-9])/g, function(m, punct, off, whole){
+    const before = whole.slice(Math.max(0, off - 14), off + 1);
+    if (NO_BREAK.test(before)) return m;
+    if (/https?:\/\/\S*$/.test(whole.slice(0, off + 1))) return m;   // inside a link
+    return punct + "\n";
+  });
+}
 function linkify(t){
   return t.replace(/https?:\/\/[^\s<]+[^\s<.,)]/g, u => '<a href="'+u+'" target="_blank" rel="noopener">'+u+'</a>');
 }
@@ -228,7 +245,7 @@ function renderRef(c){
   ];
   const noIdFaqHtml = noIdFaqs.map(([q, a]) => '<details><summary>'+esc(q)+'</summary><p>'+linkify(esc(a).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>'))+'</p></details>').join("");
   const countyFaq = (c.faq && c.faq.length)
-    ? c.faq.map(([q, a]) => '<details><summary>'+esc(q)+'</summary><p>'+linkify(esc(a).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>'))+'</p></details>').join("")
+    ? c.faq.map(([q, a]) => '<details><summary>'+esc(q)+'</summary><p>'+linkify(esc(spaced(a)).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>'))+'</p></details>').join("")
     : '';
   $("faq").innerHTML = noIdFaqHtml + countyFaq;
 }
@@ -440,13 +457,13 @@ function renderFFTips(){
     const labs = checked.map(([lab]) => lab);
     const body = (whyPoint(c) + " " + whyTail(labs)).trim();
     const line = ffReassureTmpl.replace("{BODY}", body);
-    h += '<div class="step"><div class="tag">'+esc(FF_REASSURE_LABEL)+'</div><div class="read">'+fmt(line, c.phone)+'</div></div>';
+    h += '<div class="step"><div class="tag">'+esc(FF_REASSURE_LABEL)+'</div><div class="read">'+fmt(spaced(line), c.phone)+'</div></div>';
   }
   if (ffWalk && checked.some(([lab]) => FF_ENVELOPE.indexOf(lab) !== -1)){
     let wt = ffWalk[1].replace("{PHONE}", phone);
     if (c.dropbox && UNIVERSAL.dropbox) wt += " " + UNIVERSAL.dropbox;  // encourage drop boxes where the county has them
     h += '<div class="step"><div class="tag">'+esc(ffWalk[0])+'</div><div class="read">' +
-         fmt(wt, c.phone) + '</div></div>';
+         fmt(spaced(wt), c.phone) + '</div></div>';
   }
   checked.forEach(([lab, txt]) => {
     let t;
@@ -466,12 +483,12 @@ function renderFFTips(){
     }
     t = t.replace(/\b(calling or emailing|call or email|calling|emailing|call|email|mail a letter)\b/gi, "**$1**");  // bold the action instruction
     h += '<div class="step"><div class="tag">'+esc(lab)+'</div><div class="read">' +
-         fmt(t, c.phone) + '</div></div>';
+         fmt(spaced(t), c.phone) + '</div></div>';
   });
   // Provisional fallback, read after the fix for every error.
   if (UNIVERSAL.provisional){
     h += '<div class="step"><div class="tag">If you can&rsquo;t fix it in time</div><div class="read">' +
-         fmt(UNIVERSAL.provisional.replace("{PHONE}", phone), c.phone) + '</div></div>';
+         fmt(spaced(UNIVERSAL.provisional.replace("{PHONE}", phone)), c.phone) + '</div></div>';
   }
   const labsForAsk = checked.map(([lab]) => lab);
   // Live transfer (spoken line + copy-number panel) shows together, only for No ID /
@@ -479,7 +496,7 @@ function renderFFTips(){
   const transferEligible = labsForAsk.indexOf("NO ID") !== -1 || labsForAsk.indexOf("UNDELIVERABLE") !== -1;
   const showTransfer = transferEligible && officeOpenNow();
   let ask = ffCommitment(labsForAsk, c);
-  if (ask) h += '<div class="step"><div class="tag">Ask for the commitment</div><div class="read">'+fmt(ask, c.phone)+'</div></div>';
+  if (ask) h += '<div class="step"><div class="tag">Ask for the commitment</div><div class="read">'+fmt(spaced(ask), c.phone)+'</div></div>';
   if (showTransfer){
     const num = c.phone || "";
     const officeName = c.boe || (county + " County Board of Elections");
@@ -541,7 +558,7 @@ function voicemailBlock(c){
     + "There is still time to get this settled. " + action + " "
     + "If you can't fix this before Election Day, November 3rd, you can vote at your polling place by provisional ballot. "
     + "If you have any questions, you can reach our Voter Assistance Hotline at 1-833-728-6837. Thank you.";
-  const t = fmt(msg, c.phone)
+  const t = fmt(spaced(msg), c.phone)
     .replace("[Voter Name]", '<span class="nm">[Voter Name]</span>')
     .replace("[YOUR NAME]", '<span class="nm">[YOUR NAME]</span>')
     .replace("1-833-728-6837", '<span class="num">1-833-728-6837</span>');
@@ -573,10 +590,10 @@ function render(){
     voicemailBlock(c) +
     '<div class="cty">Reading for <span>'+esc(county)+' County</span></div>' +
     '<div class="step"><div class="tag">Step 1 &middot; Opening</div>' +
-      step1Lines(c).slice(0, 1).map(s => '<div class="read">'+fmt(s)+'</div>').join("") +
+      step1Lines(c).slice(0, 1).map(s => '<div class="read">'+fmt(spaced(s))+'</div>').join("") +
       (opener ? '<div class="read">'+esc(opener)+'</div>' : '') + '</div>' +
     '<div id="fftips"></div>' +
-    '<div class="step"><div class="tag">Step 4 &middot; Closing</div><div class="read">'+fmt(UNIVERSAL.s4)+'</div></div>' +
+    '<div class="step"><div class="tag">Step 4 &middot; Closing</div><div class="read">'+fmt(spaced(UNIVERSAL.s4))+'</div></div>' +
     NEXT("bottom");
   renderFFTips();
 }
