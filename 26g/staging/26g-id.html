@@ -84,7 +84,8 @@
         border-radius:0 10px 10px 0; padding:16px 20px; font-size:1.2rem;
         line-height:1.7; white-space:pre-line;}
   .read b.phone{color:var(--ink); white-space:nowrap;}
-  .read b.email{color:var(--ink); word-break:break-all;}
+  .read b.email{color:var(--ink);}
+  b.email, .email{white-space:nowrap;}   /* never break an email address across lines (Lisa 2026-09-21) */
   .read b.hl{color:var(--ink);}
   footer{color:var(--muted); font-size:.78rem; padding:10px 16px; max-width:860px; margin:0 auto;}
   .faq{margin-top:28px; border-top:2px solid var(--line); padding-top:14px;}
@@ -252,7 +253,7 @@ function renderRef(c){
   $("contact").innerHTML =
     '<span class="office">'+esc(c.office)+'</span>' +
     (c.phone ? '<span><span class="lbl">Phone</span><span class="ph"><a href="tel:'+esc(c.phone)+'">'+esc(c.phone)+'</a></span></span>' : '') +
-    (c.email ? '<span><span class="lbl">Email</span><b>'+esc(c.email)+'</b></span>' : '') +
+    (c.email ? '<span><span class="lbl">Email</span><b class="email">'+esc(c.email)+'</b></span>' : '') +
     (c.addr ? '<span><span class="lbl">Office</span>'+esc(c.addr)+'</span>' : '') +
     (c.website ? '<span class="links" style="flex-basis:100%"><span class="lbl">Website</span><a href="'+esc(c.website)+'" target="_blank" rel="noopener">'+esc(c.website.replace(/^https?:\/\//,""))+'</a></span>' : '');
   // V6: full No ID FAQ (county BOE number and hotline filled in; deadline is a placeholder).
