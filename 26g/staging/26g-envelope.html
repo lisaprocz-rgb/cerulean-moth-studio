@@ -678,13 +678,13 @@ function voicemailBlock(c){
   // Voicemail opening (Lisa 2026-09-19): who is calling and what the county found, in one
   // breath, then the error, then this county's fix (same bucket text as the script, built
   // in Python as envVm), then the hotline.
-  const intro = "Hi, this message is for [Voter Name]. This is [YOUR NAME] from the PA Dems. The **"
+  const intro = "Hi, this message is for [VOTER NAME]. This is [YOUR NAME] from the PA Dems. The **"
     + office + "** has reported an error with your mail ballot, which could prevent it from being counted. "
     + errorSentence() + " ";
   const hotline = " If you have any questions, you can reach our Voter Assistance Hotline at 1-833-728-6837. Thank you.";
   const msg = intro + (c.envVm || "").split("{ERR}").join(errSaid()) + hotline;
   const t = fmt(msg, c.phone)
-    .replace("[Voter Name]", '<span class="nm">[Voter Name]</span>')
+    .replace("[VOTER NAME]", '<span class="nm">[VOTER NAME]</span>')
     .replace("[YOUR NAME]", '<span class="nm">[YOUR NAME]</span>')
     .replace("1-833-728-6837", '<span class="num">1-833-728-6837</span>');
   return '<div class="vmail">' +
