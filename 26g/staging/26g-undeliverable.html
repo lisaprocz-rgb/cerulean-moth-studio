@@ -292,10 +292,16 @@ function renderRef(c){
      "You must complete ID verification with your county Board of Elections by November 9, 2026, but we recommend doing it as soon as possible in case they need additional information.")]);
   }
   const faqHtml = faqs.map(([q, a]) => '<details><summary>'+esc(q)+'</summary>'+faqBody(a)+'</details>').join("");
-  const countyFaq = (c.faq && c.faq.length)
-    ? c.faq.map(([q, a]) => '<details><summary>'+esc(q)+'</summary>'+faqBody(a)+'</details>').join("")
-    : '';
-  $("faq").innerHTML = (faqHtml + countyFaq) || '<p class="sub">No FAQ rows for this county yet.</p>';
+  // Order (Lisa 2026-09-21): right under the contact card come the county's drop boxes,
+  // satellite offices and on-demand voting, in that order; then the general FAQ; then
+  // the rest of the county rows.
+  const rows = (c.faq || []).slice();
+  const pick = re => { const i = rows.findIndex(([q]) => re.test(q)); return i === -1 ? "" : rows.splice(i, 1)[0]; };
+  const first = [pick(/drop box/i), pick(/satellite/i), pick(/on-demand|on demand/i)].filter(Boolean);
+  const det = ([q, a]) => '<details><summary>'+esc(q)+'</summary>'+faqBody(a)+'</details>';
+  const topFaq = first.map(det).join("");
+  const countyFaq = rows.map(det).join("");
+  $("faq").innerHTML = (topFaq + faqHtml + countyFaq) || '<p class="sub">No FAQ rows for this county yet.</p>';
 }
 
 const FF_WALK_LABEL = "HOW TO FILL OUT YOUR BALLOT";
