@@ -397,7 +397,6 @@ function noticebox(k){
   var f=FAMILY[FAM_OF[k]||"none"]; if(!f||!f.notice) return '';
   return '<div class="panel warnbox"><span class="chip">What to expect from your county</span><p>'+f.notice+'</p></div>';
 }
-var DOSCAVEAT='<p class="ph" style="margin:.2rem 0 1rem !important">If you received an email from the state about your ballot, be aware those messages are standardised and may not match what your county actually does.</p>';
 var DATENOTE='<div class="notice2"><strong>About dates specifically.</strong> As the law stands today a ballot cannot be thrown out for a missing or wrong date, and the state has told counties to set those ballots aside but still count them. That is being appealed and a court could change it at any time, so fix a date problem if you can rather than relying on it.</div>';
 
 function daPanel(c){
@@ -513,11 +512,11 @@ function render(){
   else if(k==="sent") h+=card("","Watch the calendar","Your ballot is on its way to you, or on its way back","Your application was approved and a ballot was sent, and your county has not recorded it as returned yet. If it has not arrived, contact your county. <strong>If it is election day and you still see this status, go to your polling place and vote by provisional ballot.</strong>")+noticebox(k)+office(c,n);
   else if(k==="admin") h+=card("","Office record","This is not a problem with your vote","Your county cancelled a ballot label, usually because it was damaged or misplaced, and made a new one. You did nothing wrong. Watch for your ballot to arrive.")+office(c,n);
   else if(k==="repl") h+=card("","Office record","A replacement ballot was sent to you","Use the replacement. The original will not be counted.")+office(c,n);
-  else if(k==="p") h+=P1+LEAD+cureCard(c,"act","Your county says you "+d)+(/date/.test(d||"")?DATENOTE:"")+noticebox(k)+DOSCAVEAT+daPanel(c)+P2+office(c,n);
-  else if(k==="pother") h+=P1+LEAD+cureCard(c,"act","Your county found a problem with your ballot")+noticebox(k)+DOSCAVEAT+daPanel(c)+P2+office(c,n);
-  else if(k==="c") h+=P1+LEAD+cureCard(c,"bad","Your ballot was cancelled because it "+d)+(/date/.test(d||"")?DATENOTE:"")+noticebox(k)+DOSCAVEAT+daPanel(c)+P2+office(c,n);
-  else if(k==="cother") h+=P1+LEAD+cureCard(c,"bad","Your ballot was cancelled")+noticebox(k)+DOSCAVEAT+daPanel(c)+P2+office(c,n);
-  else if(k==="pid"||k==="cid") h+=LEAD+card(k==="pid"?"act":"bad","Time sensitive","Your county could not verify your ID","Your ballot will not count unless you provide identification your county accepts."+(c?" "+c.id_path:""))+noticebox(k)+DOSCAVEAT+daPanel(c)+PROV+office(c,n);
+  else if(k==="p") h+=P1+LEAD+cureCard(c,"act","Your county says you "+d)+(/date/.test(d||"")?DATENOTE:"")+noticebox(k)+daPanel(c)+P2+office(c,n);
+  else if(k==="pother") h+=P1+LEAD+cureCard(c,"act","Your county found a problem with your ballot")+noticebox(k)+daPanel(c)+P2+office(c,n);
+  else if(k==="c") h+=P1+LEAD+cureCard(c,"bad","Your ballot was cancelled because it "+d)+(/date/.test(d||"")?DATENOTE:"")+noticebox(k)+daPanel(c)+P2+office(c,n);
+  else if(k==="cother") h+=P1+LEAD+cureCard(c,"bad","Your ballot was cancelled")+noticebox(k)+daPanel(c)+P2+office(c,n);
+  else if(k==="pid"||k==="cid") h+=LEAD+card(k==="pid"?"act":"bad","Time sensitive","Your county could not verify your ID","Your ballot will not count unless you provide identification your county accepts."+(c?" "+c.id_path:""))+noticebox(k)+daPanel(c)+PROV+office(c,n);
   else if(k==="und") h+=LEAD+card("bad","Act now, you may get no warning","The post office could not deliver your ballot","Your ballot came back to the county and was cancelled."+(c?" "+c.und_path:""))+noticebox(k)+PROV+office(c,n);
   else if(k==="late") h+=card("bad","Cannot be fixed","Your ballot arrived after the deadline","Ballots have to reach the county by 8:00 p.m. on election day. This one cannot be counted and there is no way to fix it now. Arriving late is the most common reason a mail ballot is not counted, so next time return it early or use a drop box. Call or text the hotline if you want help planning ahead.");
   else if(k==="chal") h+=card("bad","Action needed","Your ballot was challenged","The challenge succeeded. Contact your county election office and the hotline as soon as possible.")+office(c,n);
