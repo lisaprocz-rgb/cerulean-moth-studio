@@ -389,9 +389,15 @@ var FAM_OF={ok:"none",sent:"outstanding",admin:"none",repl:"none",
  p:"envelope",pother:"envelope",c:"envelope",cother:"envelope",
  pid:"id",cid:"id",und:"undeliverable",late:"late",chal:"none"};
 
-function famstrip(k){
+function famstrip(k,c){
   var f=FAMILY[FAM_OF[k]||"none"]; if(!f||!f.name) return '';
-  return '<div class="famstrip"><p class="fam">'+f.name+'</p><p class="dl">'+f.deadline+'</p></div>';
+  var dl=f.deadline;
+  /* "Deadline to fix" is wrong in a county that allows no fix. The date still
+     matters to those voters, because it is when the polls close and their
+     provisional ballot has to be cast, so say that instead of removing it. */
+  if(c && c.bucket==="none" && FAM_OF[k]==="envelope")
+    dl="Your county does not allow a fix. Polls close at 8:00 p.m. on election day.";
+  return '<div class="famstrip"><p class="fam">'+f.name+'</p><p class="dl">'+dl+'</p></div>';
 }
 function noticebox(k){
   var f=FAMILY[FAM_OF[k]||"none"]; if(!f||!f.notice) return '';
@@ -409,19 +415,42 @@ function datenote(c){
   return lead+'so fix a date problem if you can rather than relying on it.</div>';
 }
 
-function daPanel(c){
+function daPanel(c,already){
   if(!c) return '';
   var b=[];
   b.push("A designated agent can act for you. That means someone you name collects or hands in your materials. The Designated Agent Form is on the Department of State website, and your county may ask for extra paperwork.");
-  if(c.da_home) b.push("Staff in this county have brought a ballot to a voter who could not get to the office. Call and ask.");
+  /* County-specific disability guidance, from the workbook's "Using a DA for Cure"
+     column. Skipped when the county's entry only restates the generic sentence
+     above, which would read as padding. The substantive ones carry real detail:
+     staff who will drive to a voter's home, a courthouse kerbside handover, a
+     dedicated phone line. */
+  var ownWords = c.cure_da && !/^call boe\.?$/i.test(c.cure_da)
+     && !/^If you have a disability, you can send a designated agent( to fix your ballot for you)?\.$/i.test(String(c.cure_da).trim())
+     /* Monroe's envelope text already ends with this exact sentence. Do not say it twice. */
+     && !(already && String(already).indexOf(String(c.cure_da).trim())>=0);
+  if(ownWords) b.push(c.cure_da);
+  /* The county's own wording supersedes the generic "staff may bring it to you"
+     line, which otherwise says the same thing twice in Adams, Jefferson and Monroe. */
+  if(c.da_home && !ownWords) b.push("Staff in this county have brought a ballot to a voter who could not get to the office. Call and ask.");
   if(c.da_curb) b.push("This county offers curbside service at the office if you cannot come inside.");
   if(c.da_nocurb) b.push("This county does not generally offer curbside service, so plan for a designated agent instead.");
   if(c.da_appt) b.push("Appointments are available, which is worth asking for.");
   if(c.da_multi) b.push("One person can act as designated agent for more than one voter in the same visit, though each voter needs their own form.");
-  if(c.da_phone) b.push("This county has a dedicated line for voters with a disability: "+c.da_phone+", by 5:00 p.m. on election day.");
-  if(c.cure_tier==="none") b.push("Because this county does not offer a way to fix a mail ballot, a provisional ballot at your polling place is your route.");
+  /* Skip the generic line when the county's own wording already gives that
+     number, which is the case in Lancaster. */
+  var digits=String(c.da_phone||'').replace(/[^0-9]/g,'');
+  var alreadyHasNumber = ownWords && digits && String(c.cure_da).replace(/[^0-9]/g,'').indexOf(digits)>=0;
+  if(c.da_phone && !alreadyHasNumber) b.push("This county has a dedicated line for voters with a disability: "+c.da_phone+", by 5:00 p.m. on election day.");
+  /* This read c.cure_tier, which is not a field on the county record, so the
+     sentence never appeared. The field is c.bucket. */
+  if(c.bucket==="none" && !c.da_da) b.push("Because this county does not offer a way to fix a mail ballot, a provisional ballot at your polling place is your route.");
   b.push("If you need help, call or text the PA Dems Voter Assistance Hotline on 833-728-6837 and ask to be connected to a volunteer designated agent.");
-  return '<div class="panel"><span class="chip">If you have a disability</span><h3>Getting help to fix your ballot</h3><ul class="dalist"><li>'+b.join('</li><li>')+'</li></ul></div>';
+  /* In a county that allows no cure, "help to fix your ballot" promises something
+     the county does not offer. The exception is the handful of no-cure counties
+     that do let a voter with a disability cure through a designated agent. */
+  var canFix=(c.bucket!=="none")||!!c.da_da;
+  var head=canFix?"Getting help to fix your ballot":"Getting help to vote";
+  return '<div class="panel"><span class="chip">If you have a disability</span><h3>'+head+'</h3><ul class="dalist"><li>'+b.join('</li><li>')+'</li></ul></div>';
 }
 
 var COUNTIES={};
@@ -480,8 +509,9 @@ function office(c,n){
   if(c.website) bits.push('<a href="'+c.website+'" target="_blank" rel="noopener">County elections website</a>');
   return '<div class="panel"><span class="chip">Your county office</span><h3>'+n+' County '+(c.office_name||'')+'</h3><p>'+
     bits.join('<br>')+'</p></div>'; }
-function da(c){ return (c&&c.cure_da&&!/^call boe\.?$/i.test(c.cure_da))
-    ? panel("Help for voters with a disability","",c.cure_da) : ''; }
+/* da() removed 2026-09-22: it was defined but never called, so the county
+   disability text it rendered was invisible. That text now appears inside
+   daPanel(), which is the single disability panel. */
 
 var PROV='<div class="panel blue"><span class="chip">True in every county</span><h3>A provisional ballot is an option for every voter</h3><p>If you cannot fix your mail ballot, or you are not sure it will count, go to your own polling place on election day and ask for a provisional ballot. A properly cast provisional ballot is always counted if the mail ballot is not.</p></div>';
 var HOT='<div class="hotline"><p class="lbl"><span class="q">Voting Questions?</span> Call or Text the PA Dems Voter Assistance Hotline</p><a class="num-link" href="tel:+18337286837">833-728-6837</a><p class="sms">By texting us, you consent to receive reply messages from the PA Dems regarding your inquiry. Message &amp; data rates may apply. Reply STOP to opt out.</p></div>';
@@ -489,7 +519,9 @@ var HOT='<div class="hotline"><p class="lbl"><span class="q">Voting Questions?</
 /* One-line reassurance shown at the top of a defect result when the full provisional
    panel sits further down, so a voter who reads only the first screen still learns
    there is a fallback. Omitted when the provisional panel is already leading. */
-var PROVLEAD='<p class="provlead">Whatever your county allows, you can always go to your own polling place on election day and ask for a provisional ballot. There is more about that below.</p>';
+/* Deliberately worded so it does NOT repeat the provisional panel further down.
+   An earlier version shared a whole sentence with it, which read as padding. */
+var PROVLEAD='<p class="provlead">Whatever your county allows, every voter has a fallback: a provisional ballot, explained just below.</p>';
 
 /* Where the provisional panel belongs depends on what the county allows.
    In a county that permits no cure at all, provisional voting is not the backup plan,
@@ -516,17 +548,17 @@ function render(){
   var cv=cs.value,sv=ss.value;
   if(!sv){out.innerHTML="";return;}
   var c=(cv&&cv!=="__")?COUNTIES[cv]:null, n=(cv&&cv!=="__")?cv:"", k=sv.split("|")[0], d=sv.split("|")[1], h="";
-  h+=famstrip(k);
+  h+=famstrip(k,c);
   var PF=provFirst(k,c), P1=PF?PROV:"", P2=PF?"":PROV, LEAD=PF?"":PROVLEAD;
   if(k==="ok") h+=card("","No action needed now","Your county has your ballot","Your county has not recorded any problem on the outside of your envelope. That is not the same as your vote being counted, because some problems are only found later. Check again in a few days.");
   else if(k==="sent") h+=card("","Watch the calendar","Your ballot is on its way to you, or on its way back","Your application was approved and a ballot was sent, and your county has not recorded it as returned yet. If it has not arrived, contact your county. <strong>If it is election day and you still see this status, go to your polling place and vote by provisional ballot.</strong>")+noticebox(k)+office(c,n);
   else if(k==="admin") h+=card("","Office record","This is not a problem with your vote","Your county cancelled a ballot label, usually because it was damaged or misplaced, and made a new one. You did nothing wrong. Watch for your ballot to arrive.")+office(c,n);
   else if(k==="repl") h+=card("","Office record","A replacement ballot was sent to you","Use the replacement. The original will not be counted.")+office(c,n);
-  else if(k==="p") h+=P1+LEAD+cureCard(c,"act","Your county says you "+d)+(/date/.test(d||"")?datenote(c):"")+noticebox(k)+daPanel(c)+P2+office(c,n);
-  else if(k==="pother") h+=P1+LEAD+cureCard(c,"act","Your county found a problem with your ballot")+noticebox(k)+daPanel(c)+P2+office(c,n);
-  else if(k==="c") h+=P1+LEAD+cureCard(c,"bad","Your ballot was cancelled because it "+d)+(/date/.test(d||"")?datenote(c):"")+noticebox(k)+daPanel(c)+P2+office(c,n);
-  else if(k==="cother") h+=P1+LEAD+cureCard(c,"bad","Your ballot was cancelled")+noticebox(k)+daPanel(c)+P2+office(c,n);
-  else if(k==="pid"||k==="cid") h+=LEAD+card(k==="pid"?"act":"bad","Time sensitive","Your county could not verify your ID","Your ballot will not count unless you provide identification your county accepts."+(c?" "+c.id_path:""))+noticebox(k)+daPanel(c)+PROV+office(c,n);
+  else if(k==="p") h+=P1+LEAD+cureCard(c,"act","Your county says you "+d)+(/date/.test(d||"")?datenote(c):"")+noticebox(k)+daPanel(c,c&&c.cure_env)+P2+office(c,n);
+  else if(k==="pother") h+=P1+LEAD+cureCard(c,"act","Your county found a problem with your ballot")+noticebox(k)+daPanel(c,c&&c.cure_env)+P2+office(c,n);
+  else if(k==="c") h+=P1+LEAD+cureCard(c,"bad","Your ballot was cancelled because it "+d)+(/date/.test(d||"")?datenote(c):"")+noticebox(k)+daPanel(c,c&&c.cure_env)+P2+office(c,n);
+  else if(k==="cother") h+=P1+LEAD+cureCard(c,"bad","Your ballot was cancelled")+noticebox(k)+daPanel(c,c&&c.cure_env)+P2+office(c,n);
+  else if(k==="pid"||k==="cid") h+=LEAD+card(k==="pid"?"act":"bad","Time sensitive","Your county could not verify your ID","Your ballot will not count unless you provide identification your county accepts."+(c?" "+c.id_path:""))+noticebox(k)+daPanel(c,c&&c.id_path)+PROV+office(c,n);
   else if(k==="und") h+=LEAD+card("bad","Act now, you may get no warning","The post office could not deliver your ballot","Your ballot came back to the county and was cancelled."+(c?" "+c.und_path:""))+noticebox(k)+PROV+office(c,n);
   else if(k==="late") h+=card("bad","Cannot be fixed","Your ballot arrived after the deadline","Ballots have to reach the county by 8:00 p.m. on election day. This one cannot be counted and there is no way to fix it now. Arriving late is the most common reason a mail ballot is not counted, so next time return it early or use a drop box. Call or text the hotline if you want help planning ahead.");
   else if(k==="chal") h+=card("bad","Action needed","Your ballot was challenged","The challenge succeeded. Contact your county election office and the hotline as soon as possible.")+office(c,n);
