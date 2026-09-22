@@ -571,9 +571,33 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&ovl.classLi
   if(window.parent===window) return;   /* not embedded: stop here */
 
   var last=0;
+
+  /* Measure the content, not the viewport.
+     document.scrollHeight cannot be used here. Once the host page enlarges the
+     frame, the document is at least that tall, so the measurement never falls
+     again and the frame can only ever grow: pick a long result, then a short
+     one, and the voter is left staring at a screen of white space.
+     Element boxes do not stretch to fill the viewport, so measuring the bottom
+     edge of the real content shrinks correctly as well as grows.
+     Fixed-position elements are skipped: the example popup is pinned to the
+     viewport and is not part of the document flow. */
+  function contentHeight(){
+    var kids=document.body.children, bottom=0;
+    for(var i=0;i<kids.length;i++){
+      var el=kids[i];
+      var cs=window.getComputedStyle(el);
+      if(cs.position==="fixed"||cs.display==="none") continue;
+      var r=el.getBoundingClientRect();
+      var b=r.bottom+(window.pageYOffset||document.documentElement.scrollTop||0);
+      if(b>bottom) bottom=b;
+    }
+    var pad=parseFloat(window.getComputedStyle(document.body).paddingBottom)||0;
+    return Math.ceil(bottom+pad);
+  }
+
   function sendHeight(){
-    var d=document.documentElement,b=document.body;
-    var h=Math.max(b.scrollHeight,b.offsetHeight,d.scrollHeight,d.offsetHeight);
+    var h=contentHeight();
+    if(!h) return;
     if(Math.abs(h-last)<2) return;     /* only speak when the height really changed */
     last=h;
     try{ window.parent.postMessage({type:"padems-ballot-status:height",height:h},"*"); }catch(e){}
