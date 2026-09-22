@@ -397,7 +397,17 @@ function noticebox(k){
   var f=FAMILY[FAM_OF[k]||"none"]; if(!f||!f.notice) return '';
   return '<div class="panel warnbox"><span class="chip">What to expect from your county</span><p>'+f.notice+'</p></div>';
 }
-var DATENOTE='<div class="notice2"><strong>About dates specifically.</strong> As the law stands today a ballot cannot be thrown out for a missing or wrong date, and the state has told counties to set those ballots aside but still count them. That is being appealed and a court could change it at any time, so fix a date problem if you can rather than relying on it.</div>';
+/* The date note has to match what the county actually allows.
+   Telling a voter to "fix it if you can" in a county that permits no cure is
+   advice they cannot act on, and it contradicts the card directly above it.
+   In a no-cure county the honest point is different: their mail ballot may well
+   count anyway under current law, and the provisional ballot costs them nothing. */
+function datenote(c){
+  var lead='<div class="notice2"><strong>About dates specifically.</strong> As the law stands today a ballot cannot be thrown out for a missing or wrong date, and the state has told counties to set those ballots aside but still count them. That is being appealed and a court could change it at any time, ';
+  if(c && c.bucket==="none")
+    return lead+'so your mail ballot may still count even though your county has flagged it. Your county does not offer any way to fix a date problem, which is why voting by provisional ballot is worth doing anyway. It costs you nothing: if your mail ballot ends up being counted, the provisional one is not.</div>';
+  return lead+'so fix a date problem if you can rather than relying on it.</div>';
+}
 
 function daPanel(c){
   if(!c) return '';
@@ -512,9 +522,9 @@ function render(){
   else if(k==="sent") h+=card("","Watch the calendar","Your ballot is on its way to you, or on its way back","Your application was approved and a ballot was sent, and your county has not recorded it as returned yet. If it has not arrived, contact your county. <strong>If it is election day and you still see this status, go to your polling place and vote by provisional ballot.</strong>")+noticebox(k)+office(c,n);
   else if(k==="admin") h+=card("","Office record","This is not a problem with your vote","Your county cancelled a ballot label, usually because it was damaged or misplaced, and made a new one. You did nothing wrong. Watch for your ballot to arrive.")+office(c,n);
   else if(k==="repl") h+=card("","Office record","A replacement ballot was sent to you","Use the replacement. The original will not be counted.")+office(c,n);
-  else if(k==="p") h+=P1+LEAD+cureCard(c,"act","Your county says you "+d)+(/date/.test(d||"")?DATENOTE:"")+noticebox(k)+daPanel(c)+P2+office(c,n);
+  else if(k==="p") h+=P1+LEAD+cureCard(c,"act","Your county says you "+d)+(/date/.test(d||"")?datenote(c):"")+noticebox(k)+daPanel(c)+P2+office(c,n);
   else if(k==="pother") h+=P1+LEAD+cureCard(c,"act","Your county found a problem with your ballot")+noticebox(k)+daPanel(c)+P2+office(c,n);
-  else if(k==="c") h+=P1+LEAD+cureCard(c,"bad","Your ballot was cancelled because it "+d)+(/date/.test(d||"")?DATENOTE:"")+noticebox(k)+daPanel(c)+P2+office(c,n);
+  else if(k==="c") h+=P1+LEAD+cureCard(c,"bad","Your ballot was cancelled because it "+d)+(/date/.test(d||"")?datenote(c):"")+noticebox(k)+daPanel(c)+P2+office(c,n);
   else if(k==="cother") h+=P1+LEAD+cureCard(c,"bad","Your ballot was cancelled")+noticebox(k)+daPanel(c)+P2+office(c,n);
   else if(k==="pid"||k==="cid") h+=LEAD+card(k==="pid"?"act":"bad","Time sensitive","Your county could not verify your ID","Your ballot will not count unless you provide identification your county accepts."+(c?" "+c.id_path:""))+noticebox(k)+daPanel(c)+PROV+office(c,n);
   else if(k==="und") h+=LEAD+card("bad","Act now, you may get no warning","The post office could not deliver your ballot","Your ballot came back to the county and was cancelled."+(c?" "+c.und_path:""))+noticebox(k)+PROV+office(c,n);
