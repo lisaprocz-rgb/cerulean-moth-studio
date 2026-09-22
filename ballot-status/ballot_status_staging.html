@@ -547,6 +547,43 @@ openBtn.addEventListener("click",openEx);
 closeBtn.addEventListener("click",closeEx);
 ovl.addEventListener("click",function(e){if(e.target===ovl)closeEx();});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&ovl.classList.contains("on"))closeEx();});
+
+/* ------------------------------------------------------------------
+   EMBEDDING SUPPORT
+   Only active when this page is displayed inside an iframe. Opened
+   directly, every line below is inert: there is no parent window to
+   message, so the page looks and behaves exactly as it does today.
+   Nothing here reads, stores or transmits anything about the voter.
+   The only thing ever sent to the host page is a number, the pixel
+   height this page needs.
+   ------------------------------------------------------------------ */
+(function(){
+  /* Optional. A host page whose own header already carries PA Dems branding
+     can hide our navy band by loading this page with ?header=off so the logo
+     does not appear twice. Default is unchanged. */
+  try{
+    if(/[?&]header=off(&|$)/.test(location.search)){
+      var bd=document.querySelector(".brandband");
+      if(bd) bd.style.display="none";
+    }
+  }catch(e){}
+
+  if(window.parent===window) return;   /* not embedded: stop here */
+
+  var last=0;
+  function sendHeight(){
+    var d=document.documentElement,b=document.body;
+    var h=Math.max(b.scrollHeight,b.offsetHeight,d.scrollHeight,d.offsetHeight);
+    if(Math.abs(h-last)<2) return;     /* only speak when the height really changed */
+    last=h;
+    try{ window.parent.postMessage({type:"padems-ballot-status:height",height:h},"*"); }catch(e){}
+  }
+  if(window.ResizeObserver){ try{ new ResizeObserver(sendHeight).observe(document.body); }catch(e){} }
+  window.addEventListener("load",sendHeight);
+  window.addEventListener("resize",sendHeight);
+  setInterval(sendHeight,500);         /* backstop for browsers without ResizeObserver */
+  sendHeight();
+})();
 </script>
 </body>
 </html>
