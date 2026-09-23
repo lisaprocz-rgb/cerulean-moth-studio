@@ -600,13 +600,32 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&ovl.classLi
    height this page needs.
    ------------------------------------------------------------------ */
 (function(){
-  /* Optional. A host page whose own header already carries PA Dems branding
-     can hide our navy band by loading this page with ?header=off so the logo
-     does not appear twice. Default is unchanged. */
+  /* Two ways to suppress our own chrome when the host page already provides it.
+
+     ?header=off  hides the navy logo band only.
+     ?embed=1     hides the logo band AND our headline and subtitle, for a host
+                  page that already has its own heading above the frame, and
+                  tightens the top spacing so the tool does not start with a gap.
+
+     What is deliberately KEPT in embed mode, and why:
+       - the privacy line, because no host heading says the tool collects nothing
+         and that promise is the point of the design;
+       - the hotline card and its SMS consent wording, because a host banner at
+         the very top is far out of view by the time a voter has read a long
+         result, and the consent text must appear wherever the number does;
+       - the paid-for disclaimer.
+     Default, with no parameter, is unchanged. */
   try{
-    if(/[?&]header=off(&|$)/.test(location.search)){
+    var q=location.search;
+    var embed=/[?&]embed=1(&|$)/.test(q);
+    if(embed||/[?&]header=off(&|$)/.test(q)){
       var bd=document.querySelector(".brandband");
       if(bd) bd.style.display="none";
+    }
+    if(embed){
+      var h1=document.querySelector(".wrap h1"); if(h1) h1.style.display="none";
+      var sub=document.querySelector(".wrap .sub"); if(sub) sub.style.display="none";
+      var wrap=document.querySelector(".wrap"); if(wrap) wrap.style.paddingTop="1.5rem";
     }
   }catch(e){}
 

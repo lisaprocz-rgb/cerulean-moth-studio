@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>PREVIEW: padems.org/ballot-errors with the tool embedded</title>
+<style>
+:root{ --navy:#071539; --cream:#FBF8EC; --blue:#2F5FD0; --periwinkle:#6B83D6; --link:#2F5FD0; }
+*{box-sizing:border-box}
+body{margin:0;background:#EFEFEF;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+.note{max-width:980px;margin:0 auto;padding:.9rem 1.2rem;background:#FFF8E8;border-bottom:4px solid #BA7517;
+  font-size:.95rem;font-weight:600;color:#412402;line-height:1.5}
+.browserbar{max-width:980px;margin:0 auto;background:#fff;border-bottom:1px solid #D8D8D8;
+  padding:.7rem 1.2rem;font-size:.9rem;color:#333}
+.page{max-width:980px;margin:0 auto 3rem;background:var(--cream);padding-bottom:2rem}
+.hotbar{background:var(--blue);color:#fff;text-align:center;padding:.85rem 1rem;font-weight:700;font-size:1rem}
+.masthead{background:var(--navy);color:#fff;text-align:center;padding:2.2rem 1rem}
+.masthead h1{margin:0;font-size:2.2rem;font-weight:800;letter-spacing:.02em}
+.prompt{margin:1.6rem auto;max-width:860px;background:var(--periwinkle);color:#fff;border:2px solid #3E56A8;
+  border-radius:14px;padding:1.1rem 1.4rem;text-align:center;font-weight:700;font-size:1.12rem;line-height:1.5}
+.framewrap{max-width:900px;margin:0 auto;background:#fff;border:1px solid #DDD}
+iframe{width:100%;border:0;display:block}
+.foot{max-width:860px;margin:1.5rem auto 0;border-top:2px solid #C9C4B4;padding-top:1.1rem;text-align:center}
+.foot .faq{font-size:1.15rem;font-weight:800;color:var(--navy)}
+.foot .faq a{color:var(--link)}
+.foot .sms{margin-top:.8rem;font-size:.78rem;font-style:italic;color:#4A4A4A;line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="note">
+  PREVIEW ONLY. This is a local recreation of the padems.org mockup, built to show how the tool sits inside the
+  iframe. It is not the real page. The hotline number below is copied from the mockup as supplied and is
+  <strong>not</strong> the correct number.
+</div>
+
+<div class="browserbar">www.padems.org/ballot-errors</div>
+
+<div class="page">
+  <div class="hotbar">VOTING QUESTIONS? Call or Text the PA Dems Voter Assistance Hotline: 833-728-6838</div>
+
+  <div class="masthead"><h1>FIXING MAIL BALLOT ERRORS</h1></div>
+
+  <div class="prompt">Something wrong with your ballot?<br>Learn how to fix it so your vote can be counted!</div>
+
+  <div class="framewrap">
+    <iframe
+      id="ballot-status-tool"
+      src="https://lisaprocz-rgb.github.io/cerulean-moth-studio/ballot-status/ballot_status_staging.html?embed=1"
+      title="Next steps for your mail ballot"
+      height="900"
+      loading="lazy"></iframe>
+  </div>
+
+  <div class="foot">
+    <p class="faq">For More Information About Fixing Ballot Errors Visit our <a href="#">frequently asked questions</a></p>
+    <p class="sms">By texting us, you consent to receive reply messages from the PA Dems regarding your inquiry.
+      Message &amp; data rates may apply. Reply STOP to opt out. Texting with us is subject to the <a href="#">SMS Terms</a>.</p>
+  </div>
+</div>
+
+<script>
+/* the auto-resize listener from the embed guide */
+window.addEventListener("message", function (e) {
+  var d = e.data;
+  if (!d || d.type !== "padems-ballot-status:height") return;
+  var f = document.getElementById("ballot-status-tool");
+  if (f && d.height > 0) f.style.height = d.height + "px";
+});
+</script>
+</body>
+</html>
