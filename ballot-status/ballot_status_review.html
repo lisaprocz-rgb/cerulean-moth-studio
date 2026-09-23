@@ -95,6 +95,8 @@ select:focus{outline:none;border-color:var(--mblue);box-shadow:0 0 0 4px rgba(30
   font-size:1rem;font-weight:500;line-height:1.6;color:#412402}
 .panel.warnbox{background:#FFF8E8}
 .panel.warnbox .chip{color:#854F0B}
+.provlead{margin:0 0 1rem;padding:.9rem 1.1rem;background:var(--bluewash);border-left:5px solid var(--navy);
+  font-size:1.08rem;font-weight:700;line-height:1.6;color:var(--navy)}
 .dalist{margin:.5rem 0 0;padding-left:1.25rem}
 .dalist li{font-size:1.08rem;font-weight:500;line-height:1.6;color:var(--ink);margin:0 0 .35rem}
 footer{margin:1.5rem 0 0;font-size:.92rem;font-weight:500;line-height:1.6;color:var(--muted)}
@@ -387,29 +389,68 @@ var FAM_OF={ok:"none",sent:"outstanding",admin:"none",repl:"none",
  p:"envelope",pother:"envelope",c:"envelope",cother:"envelope",
  pid:"id",cid:"id",und:"undeliverable",late:"late",chal:"none"};
 
-function famstrip(k){
+function famstrip(k,c){
   var f=FAMILY[FAM_OF[k]||"none"]; if(!f||!f.name) return '';
-  return '<div class="famstrip"><p class="fam">'+f.name+'</p><p class="dl">'+f.deadline+'</p></div>';
+  var dl=f.deadline;
+  /* "Deadline to fix" is wrong in a county that allows no fix. The date still
+     matters to those voters, because it is when the polls close and their
+     provisional ballot has to be cast, so say that instead of removing it. */
+  if(c && c.bucket==="none" && FAM_OF[k]==="envelope")
+    dl="Your county does not allow a fix. Polls close at 8:00 p.m. on election day.";
+  return '<div class="famstrip"><p class="fam">'+f.name+'</p><p class="dl">'+dl+'</p></div>';
 }
 function noticebox(k){
   var f=FAMILY[FAM_OF[k]||"none"]; if(!f||!f.notice) return '';
   return '<div class="panel warnbox"><span class="chip">What to expect from your county</span><p>'+f.notice+'</p></div>';
 }
-var DATENOTE='<div class="notice2"><strong>About dates specifically.</strong> As the law stands today a ballot cannot be thrown out for a missing or wrong date, and the state has told counties to set those ballots aside but still count them. That is being appealed and a court could change it at any time, so fix a date problem if you can rather than relying on it.</div>';
+/* The date note has to match what the county actually allows.
+   Telling a voter to "fix it if you can" in a county that permits no cure is
+   advice they cannot act on, and it contradicts the card directly above it.
+   In a no-cure county the honest point is different: their mail ballot may well
+   count anyway under current law, and the provisional ballot costs them nothing. */
+function datenote(c){
+  var lead='<div class="notice2"><strong>About dates specifically.</strong> As the law stands today a ballot cannot be thrown out for a missing or wrong date, and the state has told counties to set those ballots aside but still count them. That is being appealed and a court could change it at any time, ';
+  if(c && c.bucket==="none")
+    return lead+'so your mail ballot may still count even though your county has flagged it. Your county does not offer any way to fix a date problem, which is why voting by provisional ballot is worth doing anyway. It costs you nothing: if your mail ballot ends up being counted, the provisional one is not.</div>';
+  return lead+'so fix a date problem if you can rather than relying on it.</div>';
+}
 
-function daPanel(c){
+function daPanel(c,already){
   if(!c) return '';
   var b=[];
   b.push("A designated agent can act for you. That means someone you name collects or hands in your materials. The Designated Agent Form is on the Department of State website, and your county may ask for extra paperwork.");
-  if(c.da_home) b.push("Staff in this county have brought a ballot to a voter who could not get to the office. Call and ask.");
+  /* County-specific disability guidance, from the workbook's "Using a DA for Cure"
+     column. Skipped when the county's entry only restates the generic sentence
+     above, which would read as padding. The substantive ones carry real detail:
+     staff who will drive to a voter's home, a courthouse kerbside handover, a
+     dedicated phone line. */
+  var ownWords = c.cure_da && !/^call boe\.?$/i.test(c.cure_da)
+     && !/^If you have a disability, you can send a designated agent( to fix your ballot for you)?\.$/i.test(String(c.cure_da).trim())
+     /* Monroe's envelope text already ends with this exact sentence. Do not say it twice. */
+     && !(already && String(already).indexOf(String(c.cure_da).trim())>=0);
+  if(ownWords) b.push(c.cure_da);
+  /* The county's own wording supersedes the generic "staff may bring it to you"
+     line, which otherwise says the same thing twice in Adams, Jefferson and Monroe. */
+  if(c.da_home && !ownWords) b.push("Staff in this county have brought a ballot to a voter who could not get to the office. Call and ask.");
   if(c.da_curb) b.push("This county offers curbside service at the office if you cannot come inside.");
   if(c.da_nocurb) b.push("This county does not generally offer curbside service, so plan for a designated agent instead.");
   if(c.da_appt) b.push("Appointments are available, which is worth asking for.");
   if(c.da_multi) b.push("One person can act as designated agent for more than one voter in the same visit, though each voter needs their own form.");
-  if(c.da_phone) b.push("This county has a dedicated line for voters with a disability: "+c.da_phone+", by 5:00 p.m. on election day.");
-  if(c.cure_tier==="none") b.push("Because this county does not offer a way to fix a mail ballot, a provisional ballot at your polling place is your route.");
+  /* Skip the generic line when the county's own wording already gives that
+     number, which is the case in Lancaster. */
+  var digits=String(c.da_phone||'').replace(/[^0-9]/g,'');
+  var alreadyHasNumber = ownWords && digits && String(c.cure_da).replace(/[^0-9]/g,'').indexOf(digits)>=0;
+  if(c.da_phone && !alreadyHasNumber) b.push("This county has a dedicated line for voters with a disability: "+c.da_phone+", by 5:00 p.m. on election day.");
+  /* This read c.cure_tier, which is not a field on the county record, so the
+     sentence never appeared. The field is c.bucket. */
+  if(c.bucket==="none" && !c.da_da) b.push("Because this county does not offer a way to fix a mail ballot, a provisional ballot at your polling place is your route.");
   b.push("If you need help, call or text the PA Dems Voter Assistance Hotline on 833-728-6837 and ask to be connected to a volunteer designated agent.");
-  return '<div class="panel"><span class="chip">If you have a disability</span><h3>Getting help to fix your ballot</h3><ul class="dalist"><li>'+b.join('</li><li>')+'</li></ul></div>';
+  /* In a county that allows no cure, "help to fix your ballot" promises something
+     the county does not offer. The exception is the handful of no-cure counties
+     that do let a voter with a disability cure through a designated agent. */
+  var canFix=(c.bucket!=="none")||!!c.da_da;
+  var head=canFix?"Getting help to fix your ballot":"Getting help to vote";
+  return '<div class="panel"><span class="chip">If you have a disability</span><h3>'+head+'</h3><ul class="dalist"><li>'+b.join('</li><li>')+'</li></ul></div>';
 }
 
 var COUNTIES={};
@@ -468,11 +509,30 @@ function office(c,n){
   if(c.website) bits.push('<a href="'+c.website+'" target="_blank" rel="noopener">County elections website</a>');
   return '<div class="panel"><span class="chip">Your county office</span><h3>'+n+' County '+(c.office_name||'')+'</h3><p>'+
     bits.join('<br>')+'</p></div>'; }
-function da(c){ return (c&&c.cure_da&&!/^call boe\.?$/i.test(c.cure_da))
-    ? panel("Help for voters with a disability","",c.cure_da) : ''; }
+/* da() removed 2026-09-22: it was defined but never called, so the county
+   disability text it rendered was invisible. That text now appears inside
+   daPanel(), which is the single disability panel. */
 
 var PROV='<div class="panel blue"><span class="chip">True in every county</span><h3>A provisional ballot is an option for every voter</h3><p>If you cannot fix your mail ballot, or you are not sure it will count, go to your own polling place on election day and ask for a provisional ballot. A properly cast provisional ballot is always counted if the mail ballot is not.</p></div>';
 var HOT='<div class="hotline"><p class="lbl"><span class="q">Voting Questions?</span> Call or Text the PA Dems Voter Assistance Hotline</p><a class="num-link" href="tel:+18337286837">833-728-6837</a><p class="sms">By texting us, you consent to receive reply messages from the PA Dems regarding your inquiry. Message &amp; data rates may apply. Reply STOP to opt out.</p></div>';
+
+/* One-line reassurance shown at the top of a defect result when the full provisional
+   panel sits further down, so a voter who reads only the first screen still learns
+   there is a fallback. Omitted when the provisional panel is already leading. */
+/* Deliberately worded so it does NOT repeat the provisional panel further down.
+   An earlier version shared a whole sentence with it, which read as padding. */
+var PROVLEAD='<p class="provlead">Whatever your county allows, every voter has a fallback: a provisional ballot, explained just below.</p>';
+
+/* Where the provisional panel belongs depends on what the county allows.
+   In a county that permits no cure at all, provisional voting is not the backup plan,
+   it is the only remaining way to vote, so it leads the result. Everywhere else the
+   fix comes first, because curing keeps the ballot the voter already filled in and
+   does not require getting to a polling place on election day.
+   Deliberately excluded: "late", where election day has already passed and a
+   provisional ballot is no longer available either. */
+function provFirst(k,c){
+  return !!(c && c.bucket==="none" && (k==="p"||k==="pother"||k==="c"||k==="cother"));
+}
 
 function bucketOf(c){ return (c&&BUCKETS[c.bucket])?BUCKETS[c.bucket]:null; }
 function cureCard(c,cls,title){
@@ -488,17 +548,18 @@ function render(){
   var cv=cs.value,sv=ss.value;
   if(!sv){out.innerHTML="";return;}
   var c=(cv&&cv!=="__")?COUNTIES[cv]:null, n=(cv&&cv!=="__")?cv:"", k=sv.split("|")[0], d=sv.split("|")[1], h="";
-  h+=famstrip(k);
+  h+=famstrip(k,c);
+  var PF=provFirst(k,c), P1=PF?PROV:"", P2=PF?"":PROV, LEAD=PF?"":PROVLEAD;
   if(k==="ok") h+=card("","No action needed now","Your county has your ballot","Your county has not recorded any problem on the outside of your envelope. That is not the same as your vote being counted, because some problems are only found later. Check again in a few days.");
   else if(k==="sent") h+=card("","Watch the calendar","Your ballot is on its way to you, or on its way back","Your application was approved and a ballot was sent, and your county has not recorded it as returned yet. If it has not arrived, contact your county. <strong>If it is election day and you still see this status, go to your polling place and vote by provisional ballot.</strong>")+noticebox(k)+office(c,n);
   else if(k==="admin") h+=card("","Office record","This is not a problem with your vote","Your county cancelled a ballot label, usually because it was damaged or misplaced, and made a new one. You did nothing wrong. Watch for your ballot to arrive.")+office(c,n);
   else if(k==="repl") h+=card("","Office record","A replacement ballot was sent to you","Use the replacement. The original will not be counted.")+office(c,n);
-  else if(k==="p") h+=cureCard(c,"act","Your county says you "+d)+(/date/.test(d||"")?DATENOTE:"")+noticebox(k)+daPanel(c)+office(c,n)+PROV;
-  else if(k==="pother") h+=cureCard(c,"act","Your county found a problem with your ballot")+noticebox(k)+daPanel(c)+office(c,n)+PROV;
-  else if(k==="c") h+=cureCard(c,"bad","Your ballot was cancelled because it "+d)+(/date/.test(d||"")?DATENOTE:"")+noticebox(k)+daPanel(c)+office(c,n)+PROV;
-  else if(k==="cother") h+=cureCard(c,"bad","Your ballot was cancelled")+noticebox(k)+daPanel(c)+office(c,n)+PROV;
-  else if(k==="pid"||k==="cid") h+=card(k==="pid"?"act":"bad","Time sensitive","Your county could not verify your ID","Your ballot will not count unless you provide identification your county accepts."+(c?" "+c.id_path:""))+noticebox(k)+daPanel(c)+office(c,n)+PROV;
-  else if(k==="und") h+=card("bad","Act now, you may get no warning","The post office could not deliver your ballot","Your ballot came back to the county and was cancelled."+(c?" "+c.und_path:""))+noticebox(k)+office(c,n)+PROV;
+  else if(k==="p") h+=P1+LEAD+cureCard(c,"act","Your county says you "+d)+(/date/.test(d||"")?datenote(c):"")+noticebox(k)+daPanel(c,c&&c.cure_env)+P2+office(c,n);
+  else if(k==="pother") h+=P1+LEAD+cureCard(c,"act","Your county found a problem with your ballot")+noticebox(k)+daPanel(c,c&&c.cure_env)+P2+office(c,n);
+  else if(k==="c") h+=P1+LEAD+cureCard(c,"bad","Your ballot was cancelled because it "+d)+(/date/.test(d||"")?datenote(c):"")+noticebox(k)+daPanel(c,c&&c.cure_env)+P2+office(c,n);
+  else if(k==="cother") h+=P1+LEAD+cureCard(c,"bad","Your ballot was cancelled")+noticebox(k)+daPanel(c,c&&c.cure_env)+P2+office(c,n);
+  else if(k==="pid"||k==="cid") h+=LEAD+card(k==="pid"?"act":"bad","Time sensitive","Your county could not verify your ID","Your ballot will not count unless you provide identification your county accepts."+(c?" "+c.id_path:""))+noticebox(k)+daPanel(c,c&&c.id_path)+PROV+office(c,n);
+  else if(k==="und") h+=LEAD+card("bad","Act now, you may get no warning","The post office could not deliver your ballot","Your ballot came back to the county and was cancelled."+(c?" "+c.und_path:""))+noticebox(k)+PROV+office(c,n);
   else if(k==="late") h+=card("bad","Cannot be fixed","Your ballot arrived after the deadline","Ballots have to reach the county by 8:00 p.m. on election day. This one cannot be counted and there is no way to fix it now. Arriving late is the most common reason a mail ballot is not counted, so next time return it early or use a drop box. Call or text the hotline if you want help planning ahead.");
   else if(k==="chal") h+=card("bad","Action needed","Your ballot was challenged","The challenge succeeded. Contact your county election office and the hotline as soon as possible.")+office(c,n);
   out.innerHTML=h;
@@ -528,6 +589,67 @@ openBtn.addEventListener("click",openEx);
 closeBtn.addEventListener("click",closeEx);
 ovl.addEventListener("click",function(e){if(e.target===ovl)closeEx();});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&ovl.classList.contains("on"))closeEx();});
+
+/* ------------------------------------------------------------------
+   EMBEDDING SUPPORT
+   Only active when this page is displayed inside an iframe. Opened
+   directly, every line below is inert: there is no parent window to
+   message, so the page looks and behaves exactly as it does today.
+   Nothing here reads, stores or transmits anything about the voter.
+   The only thing ever sent to the host page is a number, the pixel
+   height this page needs.
+   ------------------------------------------------------------------ */
+(function(){
+  /* Optional. A host page whose own header already carries PA Dems branding
+     can hide our navy band by loading this page with ?header=off so the logo
+     does not appear twice. Default is unchanged. */
+  try{
+    if(/[?&]header=off(&|$)/.test(location.search)){
+      var bd=document.querySelector(".brandband");
+      if(bd) bd.style.display="none";
+    }
+  }catch(e){}
+
+  if(window.parent===window) return;   /* not embedded: stop here */
+
+  var last=0;
+
+  /* Measure the content, not the viewport.
+     document.scrollHeight cannot be used here. Once the host page enlarges the
+     frame, the document is at least that tall, so the measurement never falls
+     again and the frame can only ever grow: pick a long result, then a short
+     one, and the voter is left staring at a screen of white space.
+     Element boxes do not stretch to fill the viewport, so measuring the bottom
+     edge of the real content shrinks correctly as well as grows.
+     Fixed-position elements are skipped: the example popup is pinned to the
+     viewport and is not part of the document flow. */
+  function contentHeight(){
+    var kids=document.body.children, bottom=0;
+    for(var i=0;i<kids.length;i++){
+      var el=kids[i];
+      var cs=window.getComputedStyle(el);
+      if(cs.position==="fixed"||cs.display==="none") continue;
+      var r=el.getBoundingClientRect();
+      var b=r.bottom+(window.pageYOffset||document.documentElement.scrollTop||0);
+      if(b>bottom) bottom=b;
+    }
+    var pad=parseFloat(window.getComputedStyle(document.body).paddingBottom)||0;
+    return Math.ceil(bottom+pad);
+  }
+
+  function sendHeight(){
+    var h=contentHeight();
+    if(!h) return;
+    if(Math.abs(h-last)<2) return;     /* only speak when the height really changed */
+    last=h;
+    try{ window.parent.postMessage({type:"padems-ballot-status:height",height:h},"*"); }catch(e){}
+  }
+  if(window.ResizeObserver){ try{ new ResizeObserver(sendHeight).observe(document.body); }catch(e){} }
+  window.addEventListener("load",sendHeight);
+  window.addEventListener("resize",sendHeight);
+  setInterval(sendHeight,500);         /* backstop for browsers without ResizeObserver */
+  sendHeight();
+})();
 </script>
 </body>
 </html>
