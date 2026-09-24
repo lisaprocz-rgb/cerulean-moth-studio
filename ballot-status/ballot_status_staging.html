@@ -85,6 +85,18 @@ select:focus{outline:none;border-color:var(--mblue);box-shadow:0 0 0 4px rgba(30
 
 
 .brandband{background:var(--navy);width:100%}
+
+/* This tool is embedded in a host page that supplies its own heading and PA Dems
+   branding, so our logo band, headline and subtitle are hidden BY DEFAULT.
+   Hidden in CSS rather than by script, so there is no flash of a heading that
+   then disappears while the page is loading.
+   Add ?header=on to the URL to show them, which is only useful for reviewing
+   the page on its own, outside the frame. */
+.brandband,.wrap h1,.wrap .sub{display:none}
+body.showhead .brandband{display:block}
+body.showhead .wrap h1,body.showhead .wrap .sub{display:block}
+.wrap{padding-top:1.6rem}
+body.showhead .wrap{padding-top:3.1rem}
 .bandinner{max-width:720px;margin:0 auto;padding:1.85rem 1.5rem 1.95rem}
 
 .famstrip{display:flex;flex-wrap:wrap;align-items:baseline;gap:.6rem 1rem;margin:0 0 1rem;
@@ -600,14 +612,12 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&ovl.classLi
    height this page needs.
    ------------------------------------------------------------------ */
 (function(){
-  /* Two ways to suppress our own chrome when the host page already provides it.
+  /* The logo band, headline and subtitle are hidden by default in the stylesheet,
+     because this tool lives inside a host page that has its own heading.
 
-     ?header=off  hides the navy logo band only.
-     ?embed=1     hides the logo band AND our headline and subtitle, for a host
-                  page that already has its own heading above the frame, and
-                  tightens the top spacing so the tool does not start with a gap.
+     ?header=on  shows them again, for reviewing the page outside the frame.
 
-     What is deliberately KEPT in embed mode, and why:
+     What is deliberately kept even with the heading hidden, and why:
        - the privacy line, because no host heading says the tool collects nothing
          and that promise is the point of the design;
        - the hotline card and its SMS consent wording, because a host banner at
@@ -616,17 +626,7 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&ovl.classLi
        - the paid-for disclaimer.
      Default, with no parameter, is unchanged. */
   try{
-    var q=location.search;
-    var embed=/[?&]embed=1(&|$)/.test(q);
-    if(embed||/[?&]header=off(&|$)/.test(q)){
-      var bd=document.querySelector(".brandband");
-      if(bd) bd.style.display="none";
-    }
-    if(embed){
-      var h1=document.querySelector(".wrap h1"); if(h1) h1.style.display="none";
-      var sub=document.querySelector(".wrap .sub"); if(sub) sub.style.display="none";
-      var wrap=document.querySelector(".wrap"); if(wrap) wrap.style.paddingTop="1.5rem";
-    }
+    if(/[?&]header=on(&|$)/.test(location.search)) document.body.className+=" showhead";
   }catch(e){}
 
   if(window.parent===window) return;   /* not embedded: stop here */
