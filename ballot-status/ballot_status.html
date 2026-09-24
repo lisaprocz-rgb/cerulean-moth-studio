@@ -85,6 +85,18 @@ select:focus{outline:none;border-color:var(--mblue);box-shadow:0 0 0 4px rgba(30
 
 
 .brandband{background:var(--navy);width:100%}
+
+/* This tool is embedded in a host page that supplies its own heading and PA Dems
+   branding, so our logo band, headline and subtitle are hidden BY DEFAULT.
+   Hidden in CSS rather than by script, so there is no flash of a heading that
+   then disappears while the page is loading.
+   Add ?header=on to the URL to show them, which is only useful for reviewing
+   the page on its own, outside the frame. */
+.brandband,.wrap h1,.wrap .sub{display:none}
+body.showhead .brandband{display:block}
+body.showhead .wrap h1,body.showhead .wrap .sub{display:block}
+.wrap{padding-top:1.6rem}
+body.showhead .wrap{padding-top:3.1rem}
 .bandinner{max-width:720px;margin:0 auto;padding:1.85rem 1.5rem 1.95rem}
 
 .famstrip{display:flex;flex-wrap:wrap;align-items:baseline;gap:.6rem 1rem;margin:0 0 1rem;
@@ -600,14 +612,21 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&ovl.classLi
    height this page needs.
    ------------------------------------------------------------------ */
 (function(){
-  /* Optional. A host page whose own header already carries PA Dems branding
-     can hide our navy band by loading this page with ?header=off so the logo
-     does not appear twice. Default is unchanged. */
+  /* The logo band, headline and subtitle are hidden by default in the stylesheet,
+     because this tool lives inside a host page that has its own heading.
+
+     ?header=on  shows them again, for reviewing the page outside the frame.
+
+     What is deliberately kept even with the heading hidden, and why:
+       - the privacy line, because no host heading says the tool collects nothing
+         and that promise is the point of the design;
+       - the hotline card and its SMS consent wording, because a host banner at
+         the very top is far out of view by the time a voter has read a long
+         result, and the consent text must appear wherever the number does;
+       - the paid-for disclaimer.
+     Default, with no parameter, is unchanged. */
   try{
-    if(/[?&]header=off(&|$)/.test(location.search)){
-      var bd=document.querySelector(".brandband");
-      if(bd) bd.style.display="none";
-    }
+    if(/[?&]header=on(&|$)/.test(location.search)) document.body.className+=" showhead";
   }catch(e){}
 
   if(window.parent===window) return;   /* not embedded: stop here */
