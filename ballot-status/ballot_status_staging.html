@@ -565,7 +565,9 @@ function office(c,n){
    disability text it rendered was invisible. That text now appears inside
    daPanel(), which is the single disability panel. */
 
-var PROV='<div class="panel blue"><span class="chip">True in every county</span><h3>A provisional ballot is an option for every voter</h3><p>If you cannot fix your mail ballot, or you are not sure it will count, go to your own polling place on election day and ask for a provisional ballot. A properly cast provisional ballot is always counted if the mail ballot is not.</p></div>';
+/* The light-blue provisional panel was removed on 2026-09-25: the navy box at the
+   foot of the page says the same thing and is shown to every visitor regardless of
+   what they select, so the panel repeated it. */
 /* The hotline card was removed from the page on 2026-09-25 at the boss's direction
    and replaced by the standing provisional reminder. The HOT variable that held its
    markup is deleted rather than left unused, because an orphaned string that looks
@@ -576,18 +578,8 @@ var PROV='<div class="panel blue"><span class="chip">True in every county</span>
    there is a fallback. Omitted when the provisional panel is already leading. */
 /* Deliberately worded so it does NOT repeat the provisional panel further down.
    An earlier version shared a whole sentence with it, which read as padding. */
-var PROVLEAD='<p class="provlead">Whatever your county allows, every voter has a fallback: a provisional ballot, explained just below.</p>';
+var PROVLEAD='<p class="provlead">Whatever your county allows, every voter has a fallback: a provisional ballot, explained at the bottom of this page.</p>';
 
-/* Where the provisional panel belongs depends on what the county allows.
-   In a county that permits no cure at all, provisional voting is not the backup plan,
-   it is the only remaining way to vote, so it leads the result. Everywhere else the
-   fix comes first, because curing keeps the ballot the voter already filled in and
-   does not require getting to a polling place on election day.
-   Deliberately excluded: "late", where election day has already passed and a
-   provisional ballot is no longer available either. */
-function provFirst(k,c){
-  return !!(c && c.bucket==="none" && (k==="p"||k==="pother"||k==="c"||k==="cother"));
-}
 
 function bucketOf(c){ return (c&&BUCKETS[c.bucket])?BUCKETS[c.bucket]:null; }
 function cureCard(c,cls,title){
@@ -604,17 +596,17 @@ function render(){
   if(!sv){out.innerHTML="";return;}
   var c=(cv&&cv!=="__")?COUNTIES[cv]:null, n=(cv&&cv!=="__")?cv:"", k=sv.split("|")[0], d=sv.split("|")[1], h="";
   h+=famstrip(k,c);
-  var PF=provFirst(k,c), P1=PF?PROV:"", P2=PF?"":PROV, LEAD=PF?"":PROVLEAD;
+  var LEAD=PROVLEAD;
   if(k==="ok") h+=card("","No action needed now","Your county has your ballot","Your county has not recorded any problem on the outside of your envelope. That is not the same as your vote being counted, because some problems are only found later. Check again in a few days.");
   else if(k==="sent") h+=card("","Watch the calendar","Your ballot is on its way to you, or on its way back","Your application was approved and a ballot was sent, and your county has not recorded it as returned yet. If it has not arrived, contact your county. <strong>If it is election day and you still see this status, go to your polling place and vote by provisional ballot.</strong>")+noticebox(k)+office(c,n);
   else if(k==="admin") h+=card("","Office record","This is not a problem with your vote","Your county cancelled a ballot label, usually because it was damaged or misplaced, and made a new one. You did nothing wrong. Watch for your ballot to arrive.")+office(c,n);
   else if(k==="repl") h+=card("","Office record","A replacement ballot was sent to you","Use the replacement. The original will not be counted.")+office(c,n);
-  else if(k==="p") h+=P1+LEAD+cureCard(c,"act","Your county says you "+d)+(/date/.test(d||"")?datenote(c):"")+noticebox(k)+daPanel(c,c&&c.cure_env)+P2+office(c,n);
-  else if(k==="pother") h+=P1+LEAD+cureCard(c,"act","Your county found a problem with your ballot")+noticebox(k)+daPanel(c,c&&c.cure_env)+P2+office(c,n);
-  else if(k==="c") h+=P1+LEAD+cureCard(c,"bad","Your ballot was cancelled because it "+d)+(/date/.test(d||"")?datenote(c):"")+noticebox(k)+daPanel(c,c&&c.cure_env)+P2+office(c,n);
-  else if(k==="cother") h+=P1+LEAD+cureCard(c,"bad","Your ballot was cancelled")+noticebox(k)+daPanel(c,c&&c.cure_env)+P2+office(c,n);
-  else if(k==="pid"||k==="cid") h+=LEAD+card(k==="pid"?"act":"bad","Time sensitive","Your county could not verify your ID","Your ballot will not count unless you provide identification your county accepts."+(c?" "+c.id_path:""))+noticebox(k)+daPanel(c,c&&c.id_path)+PROV+office(c,n);
-  else if(k==="und") h+=LEAD+card("bad","Act now, you may get no warning","The post office could not deliver your ballot","Your ballot came back to the county and was cancelled."+(c?" "+c.und_path:""))+noticebox(k)+PROV+office(c,n);
+  else if(k==="p") h+=LEAD+cureCard(c,"act","Your county says you "+d)+(/date/.test(d||"")?datenote(c):"")+noticebox(k)+daPanel(c,c&&c.cure_env)+office(c,n);
+  else if(k==="pother") h+=LEAD+cureCard(c,"act","Your county found a problem with your ballot")+noticebox(k)+daPanel(c,c&&c.cure_env)+office(c,n);
+  else if(k==="c") h+=LEAD+cureCard(c,"bad","Your ballot was cancelled because it "+d)+(/date/.test(d||"")?datenote(c):"")+noticebox(k)+daPanel(c,c&&c.cure_env)+office(c,n);
+  else if(k==="cother") h+=LEAD+cureCard(c,"bad","Your ballot was cancelled")+noticebox(k)+daPanel(c,c&&c.cure_env)+office(c,n);
+  else if(k==="pid"||k==="cid") h+=LEAD+card(k==="pid"?"act":"bad","Time sensitive","Your county could not verify your ID","Your ballot will not count unless you provide identification your county accepts."+(c?" "+c.id_path:""))+noticebox(k)+daPanel(c,c&&c.id_path)+office(c,n);
+  else if(k==="und") h+=LEAD+card("bad","Act now, you may get no warning","The post office could not deliver your ballot","Your ballot came back to the county and was cancelled."+(c?" "+c.und_path:""))+noticebox(k)+office(c,n);
   else if(k==="late") h+=card("bad","Cannot be fixed","Your ballot arrived after the deadline","Ballots have to reach the county by 8:00 p.m. on election day. This one cannot be counted and there is no way to fix it now. Arriving late is the most common reason a mail ballot is not counted, so next time return it early or use a drop box. Call or text the hotline if you want help planning ahead.");
   else if(k==="chal") h+=card("bad","Action needed","Your ballot was challenged","The challenge succeeded. Contact your county election office and the hotline as soon as possible.")+office(c,n);
   out.innerHTML=h;
