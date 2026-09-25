@@ -190,8 +190,6 @@ footer{margin:1.5rem 0 0;font-size:.92rem;font-weight:500;line-height:1.6;color:
 <h1>Next steps for your mail ballot</h1>
 <p class="sub">Find out what your ballot status means and what you can still do about it.</p>
 
-<p class="privacy"><strong>This page does not collect or save any information about you.</strong> There is nothing here for you to type in. You enter your details only on the official state website.</p>
-
 <div class="step">
   <div class="num">1</div>
   <div class="stepbody">
@@ -466,7 +464,27 @@ function daPanel(c,already){
 }
 
 var COUNTIES={};
-function loadCounties(list){ COUNTIES={}; list.forEach(function(r){ if(r.county) COUNTIES[r.county]=r; }); }
+/* Yes/no flags, tested with a plain if() further down. */
+var FLAG_FIELDS=["da_appt","da_curb","da_da","da_home","da_multi","da_nocurb"];
+
+/* A CSV gives every cell back as TEXT, so a cell containing FALSE arrives as the
+   string "FALSE", and every non-empty string is truthy in JavaScript. Without
+   this, a sheet using TRUE/FALSE would switch every flag ON for every county.
+   Accepts blank, false, no, n, f, 0 and none as "no"; anything else is "yes".
+   The built-in fallback data uses real booleans and passes through untouched. */
+function flagOn(v){
+  if(typeof v==="boolean") return v;
+  var s=String(v==null?"":v).trim().toLowerCase();
+  return !(s===""||s==="false"||s==="no"||s==="n"||s==="f"||s==="0"||s==="none");
+}
+function loadCounties(list){
+  COUNTIES={};
+  list.forEach(function(r){
+    if(!r.county) return;
+    FLAG_FIELDS.forEach(function(f){ r[f]=flagOn(r[f]); });
+    COUNTIES[r.county]=r;
+  });
+}
 loadCounties(COUNTY_FALLBACK);
 
 function parseCSV(t){
