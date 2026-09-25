@@ -94,16 +94,6 @@ select:focus{outline:none;border-color:var(--mblue);box-shadow:0 0 0 4px rgba(30
 
 .brandband{background:var(--navy);width:100%}
 
-/* Intro copy above step 1, and the standing provisional reminder that replaced
-   the hotline card. */
-.intro{margin:0 0 2.2rem}
-.introlead{margin:0 0 1rem;font-size:1.45rem;font-weight:800;line-height:1.35;color:var(--navy)}
-.intro p{margin:0 0 1rem;font-size:1.12rem;font-weight:500;line-height:1.65;color:var(--ink)}
-.introhead{margin:1.8rem 0 .6rem;font-size:1.5rem;font-weight:800;line-height:1.3;color:var(--navy)}
-.alwaysprov{margin:2.2rem 0 0;padding:1.4rem 1.5rem;background:var(--navy);border-radius:12px}
-.alwaysprov .apt{margin:0 0 .6rem;font-size:1.3rem;font-weight:800;line-height:1.35;color:var(--lblue)}
-.alwaysprov .apb{margin:0;font-size:1.1rem;font-weight:500;line-height:1.65;color:var(--white)}
-
 /* This tool is embedded in a host page that supplies its own heading and PA Dems
    branding, so our logo band, headline and subtitle are hidden BY DEFAULT.
    Hidden in CSS rather than by script, so there is no flash of a heading that
@@ -208,19 +198,12 @@ footer{margin:1.5rem 0 0;font-size:.92rem;font-weight:500;line-height:1.6;color:
 <h1>Next steps for your mail ballot</h1>
 <p class="sub">Find out what your ballot status means and what you can still do about it.</p>
 
-<div class="intro">
-  <p class="introlead">Something wrong with your ballot? Learn how to fix it so your vote can be counted!</p>
-  <p>Most voters who find a problem with their mail ballot still have time to make sure their vote counts. And no matter what your county allows, you can always vote a provisional ballot at your polling place on Election Day. If your mail ballot is not counted due to an error and you properly cast a provisional ballot, your provisional ballot will count.</p>
-  <h2 class="introhead">Make a Plan to Fix Your Ballot</h2>
-  <p>Fixing your ballot starts with understanding why it was rejected. Once you know that, you can make a plan to fix the issue.</p>
-</div>
-
 <div class="step">
   <div class="num">1</div>
   <div class="stepbody">
-    <h2>Find out what the issue is with your ballot</h2>
-    <p>Not sure whether there&#x27;s a problem? Check anyway at the PA Department of State Website Ballot Tracker at <a href="https://vote.pa.gov/mailballotstatus" target="_blank" rel="noopener">vote.pa.gov/mailballotstatus</a> &mdash; it takes 30 seconds.</p>
-    <a class="btn" href="https://vote.pa.gov/mailballotstatus" target="_blank" rel="noopener">Go to Department of State Ballot Tracker</a>
+    <h2>Check your status on the official state site</h2>
+    <p>You enter your name and date of birth there, not here. Note the status it shows you, then come back to this page.</p>
+    <a class="btn" href="https://www.pavoterservices.pa.gov/pages/ballottracking.aspx" target="_blank" rel="noopener">Open the official ballot tracker</a>
     <br>
     <button class="helplink" type="button" id="showex" aria-haspopup="dialog"><span class="i" aria-hidden="true">i</span>What will I see? Show me an example</button>
   </div>
@@ -229,8 +212,8 @@ footer{margin:1.5rem 0 0;font-size:.92rem;font-weight:500;line-height:1.6;color:
 <div class="step">
   <div class="num">2</div>
   <div class="stepbody">
-    <h2>Tell Us What the Ballot Tracker Says to Find Out How to Fix An Issue</h2>
-    <p>If there&#x27;s an issue with your ballot, your options depend on which county you&#x27;re registered in. Select your county and ballot status from the Ballot Tracker to find out what options are available to you.</p>
+    <h2>Tell us what it said</h2>
+    <p>Two menus, nothing to type.</p>
     <div class="fields">
       <div>
         <label for="cty">Your county</label>
@@ -246,9 +229,10 @@ footer{margin:1.5rem 0 0;font-size:.92rem;font-weight:500;line-height:1.6;color:
 
 <section id="out"></section>
 
-<div class="alwaysprov">
-  <p class="apt">You can always vote a provisional ballot.</p>
-  <p class="apb">No matter what your county allows, you can always vote at the polls on Election Day using a provisional ballot. If your mail ballot is not counted due to an error and you properly cast a provisional ballot, your provisional ballot will count.</p>
+<div class="hotline">
+  <p class="lbl"><span class="q">Voting Questions?</span> Call or Text the PA Dems Voter Assistance Hotline</p>
+  <a class="num-link" href="tel:+18337286837">833-728-6837</a>
+  <p class="sms">By texting us, you consent to receive reply messages from the PA Dems regarding your inquiry. Message &amp; data rates may apply. Reply STOP to opt out.</p>
 </div>
 
 <footer>
@@ -568,10 +552,7 @@ function office(c,n){
    daPanel(), which is the single disability panel. */
 
 var PROV='<div class="panel blue"><span class="chip">True in every county</span><h3>A provisional ballot is an option for every voter</h3><p>If you cannot fix your mail ballot, or you are not sure it will count, go to your own polling place on election day and ask for a provisional ballot. A properly cast provisional ballot is always counted if the mail ballot is not.</p></div>';
-/* The hotline card was removed from the page on 2026-09-25 at the boss's direction
-   and replaced by the standing provisional reminder. The HOT variable that held its
-   markup is deleted rather than left unused, because an orphaned string that looks
-   live is exactly what hid the county disability text previously. */
+var HOT='<div class="hotline"><p class="lbl"><span class="q">Voting Questions?</span> Call or Text the PA Dems Voter Assistance Hotline</p><a class="num-link" href="tel:+18337286837">833-728-6837</a><p class="sms">By texting us, you consent to receive reply messages from the PA Dems regarding your inquiry. Message &amp; data rates may apply. Reply STOP to opt out.</p></div>';
 
 /* One-line reassurance shown at the top of a defect result when the full provisional
    panel sits further down, so a voter who reads only the first screen still learns
