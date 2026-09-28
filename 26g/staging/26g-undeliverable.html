@@ -578,7 +578,11 @@ function renderFFTips(){
   if (showTransfer){
     const num = c.phone || "";
     const officeName = c.boe || (county + " County Board of Elections");
-    const spoken1 = "For your convenience, I can transfer you to the elections office right now.";
+    // Philadelphia: the transfer is the third option, after the satellite office and the
+    // online form, so it is offered that way (Lisa 2026-09-28).
+    const spoken1 = (c.undGroup === "phl")
+      ? "If getting to a satellite office or using the online form won't work for you, I can transfer you to the **" + officeName + "** right now, and they can help you get a replacement ballot."
+      : "For your convenience, I can transfer you to the elections office right now.";
     const spoken2 = "Before I do this transfer, let me give you their phone number in case we get disconnected. " +
       (num ? ("The phone number for the **" + officeName + "** is " + num + ". ")
            : ("I'll give you the phone number for the **" + officeName + "**. ")) +
