@@ -70,6 +70,8 @@
            padding:13px 16px; border-radius:11px; border:none; cursor:pointer;
            background:var(--btn-on); color:var(--btn-on-ink); margin:0 0 16px;}
   .nextbtn.bottom{margin:18px 0 0;}
+  .totop{display:block; margin:22px auto 0; font:inherit; font-size:1.05rem; font-weight:700;
+         color:var(--accent); background:none; border:0; padding:8px 12px; cursor:pointer; text-decoration:underline;}
   .cty{font-size:1rem; color:var(--navy); font-weight:700; margin:0 0 14px;}
   .cty span{background:var(--chip); border-radius:6px; padding:2px 9px;}
   main{padding:18px 16px;}
@@ -631,8 +633,13 @@ function nextVoter(){
 }
 window.nextVoter = nextVoter;
 
-const NEXT = cls => '<button class="nextbtn '+cls+'" onclick="nextVoter()">→ Next voter' +
-  (FIXED_COUNTY ? '' : ' (clear county &amp; issues)') + '</button>';
+function toTop(){ try { window.scrollTo({top:0, behavior:"smooth"}); } catch(e){ window.scrollTo(0,0); } }
+window.toTop = toTop;
+// The Philadelphia-only page has nothing to reset between calls (fixed county, one issue),
+// so it has no Next voter bars, just a Back to top link at the bottom (Lisa 2026-09-27).
+const NEXT = cls => FIXED_COUNTY
+  ? (cls === "bottom" ? '<button type="button" class="totop" onclick="toTop()">&#8593; Back to top</button>' : '')
+  : '<button class="nextbtn '+cls+'" onclick="nextVoter()">→ Next voter (clear county &amp; issues)</button>';
 
 function voicemailBlock(c){
   let t = esc(c.vmail || "")
