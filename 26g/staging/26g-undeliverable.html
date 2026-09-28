@@ -182,6 +182,9 @@
   .satcard b{display:block; color:var(--navy);}
   .satform{font-size:1.1rem; font-weight:700; margin:0 0 8px;}
   .satform a{color:var(--accent); word-break:break-all;}
+  /* Every link in the reference box, visited or not, uses the page's link color. The browser's
+     default visited purple was unreadable on the dark background (Lisa 2026-09-27). */
+  .satbox a, .satbox a:visited{color:var(--accent); word-break:break-all; font-weight:700;}
   @media(max-width:640px){ .read{font-size:1.08rem;} select{min-width:150px; flex:1;} .vmail-body{font-size:1.06rem;} details{font-size:1rem;} summary{font-size:1.04rem;} }
   .daily-banner{background:#8C4A00;color:#fff;font-weight:800;font-size:.85rem;padding:6px 12px;border-radius:8px;align-self:center;letter-spacing:.3px;white-space:nowrap;}
   #expired-screen,#notyet-screen{max-width:860px;margin:0 auto;padding:48px 16px;}
