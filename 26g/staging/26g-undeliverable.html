@@ -168,11 +168,17 @@
   .vmail-body .nm{background:var(--chip); border-radius:5px; padding:1px 7px; font-weight:700;}
   .vmail-body .vb{font-weight:700; color:var(--navy);}
   .vmail-body .num{color:var(--phone); font-weight:700; white-space:nowrap;}
-  .satbox{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px;}
+  /* Volunteer reference (not read aloud): indented, tan with a dashed gray border, so it
+     cannot be mistaken for a blue read-aloud box or the orange voicemail (Lisa 2026-09-27). */
+  .satref{margin-left:32px;}
+  .satbox{background:var(--chip); border:2px dashed var(--muted); border-radius:14px; padding:14px 18px 16px;}
+  .satpill{display:inline-block; background:var(--muted); color:var(--bg); font-size:.74rem; font-weight:800;
+           letter-spacing:.8px; text-transform:uppercase; padding:5px 12px; border-radius:999px; margin-bottom:12px;}
+  @media(max-width:640px){ .satref{margin-left:14px;} }
   .sathd{font-size:1.12rem; font-weight:800; color:var(--navy); margin:0 0 4px;}
   .sathrs{color:var(--ink); font-size:1.02rem; margin:0 0 12px; line-height:1.6;}
   .satgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:10px;}
-  .satcard{border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:1.05rem; line-height:1.5;}
+  .satcard{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:1.05rem; line-height:1.5;}
   .satcard b{display:block; color:var(--navy);}
   .satform{font-size:1.1rem; font-weight:700; margin:0 0 8px;}
   .satform a{color:var(--accent); word-break:break-all;}
@@ -598,8 +604,8 @@ function renderFFTips(){
 function satRef(c){
   const cards = c.sats.map(([d, a, z]) =>
     '<div class="satcard"><b>'+esc(d)+'</b><span>'+esc(a)+', '+esc(z)+'</span></div>').join("");
-  return '<div class="step satref"><div class="tag">Volunteer reference &middot; not read aloud</div>' +
-    '<div class="satbox">' +
+  return '<div class="step satref">' +
+    '<div class="satbox"><div class="satpill">&#128203; For you, not read aloud</div>' +
       '<div class="sathd">Satellite election offices</div>' +
       '<div class="sathrs">Open '+esc(c.satHours)+'. They take the last visitor about 30 minutes before closing.</div>' +
       '<div class="satgrid">'+cards+'</div>' +
