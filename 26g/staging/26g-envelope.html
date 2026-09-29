@@ -453,12 +453,15 @@ function mailNote(vm){
   const d = daysToElection();
   if (d > 10) return vm ? "If you mail it, send it at least 10 days ahead."
                         : "If you have to mail it, send it at least 10 days ahead; a postmark does not count.";
-  let when;
-  if (d <= 0)      when = "Election Day is today";
-  else if (d === 1) when = "Election Day is tomorrow";
-  else              when = "Election Day is only " + d + " days away";
-  if (d <= 0) return when + ", so do not mail it. The county has to have it in hand by 8 PM tonight; get it there in person.";
-  return when + ", so it is too risky to mail it now. Get it there in person.";
+  // 10 to 8 days: too risky. 7 and 6 days: likely will not make it. 5 days and under:
+  // will not make it (Lisa 2026-09-29).
+  const when = (d <= 0) ? "Election Day is today"
+             : (d === 1) ? "Election Day is tomorrow"
+             : "Election Day is only " + d + " days away";
+  if (d >= 8) return when + ", so it is too risky to mail it now. Get it there in person.";
+  if (d >= 6) return "Since " + when + ", a mailed ballot likely will not make it in time to be counted. Get it there in person.";
+  if (d >= 1) return when + ". If you mail it, your ballot will not make it in time to be counted. Get it there in person.";
+  return when + ". If you mail it, your ballot will not make it in time to be counted. The county has to have it in hand by 8 PM tonight; get it there in person.";
 }
 function errSaid(){
   const labs = checkedLabs();
