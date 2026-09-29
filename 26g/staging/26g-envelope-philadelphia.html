@@ -691,8 +691,16 @@ function voicemailBlock(c){
   // Voicemail opening (Lisa 2026-09-19): who is calling and what the county found, in one
   // breath, then the error, then this county's fix (same bucket text as the script, built
   // in Python as envVm), then the hotline.
+  // Date errors may still be counted (litigation), so they get "could"; every other
+  // envelope error is a definite rejection unless fixed (Lisa 2026-09-29). OTHER is
+  // unknown, so it keeps "could".
+  const labs0 = checkedLabs();
+  const definite = labs0.length && labs0.every(l => ["NO SIGNATURE", "NO SECRECY ENVELOPE"].indexOf(l) !== -1);
+  const consequence = !definite ? "which could prevent it from being counted. "
+                    : (c && c.noCure) ? "and it will not be counted. "
+                    : "and it will not be counted unless it is fixed. ";
   const intro = "Hi, this message is for [VOTER NAME]. This is [YOUR NAME] from the PA Dems. The **"
-    + office + "** has reported an error with your mail ballot, which could prevent it from being counted. "
+    + office + "** has reported an error with your mail ballot, " + consequence
     + errorSentence() + " ";
   const hotline = " If you have any questions, you can reach our Voter Assistance Hotline at 1-833-728-6837. Thank you.";
   const msg = intro + (c.envVm || "").split("{ERR}").join(errSaid()) + hotline;
