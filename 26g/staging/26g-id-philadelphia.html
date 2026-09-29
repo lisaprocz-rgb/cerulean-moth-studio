@@ -175,11 +175,6 @@
   @media(max-width:640px){ .read{font-size:1.08rem;} select{min-width:150px; flex:1;} .vmail-body{font-size:1.06rem;} details{font-size:1rem;} summary{font-size:1.04rem;} }
   .daily-banner{background:#8C4A00;color:#fff;font-weight:800;font-size:.85rem;padding:6px 12px;border-radius:8px;align-self:center;letter-spacing:.3px;white-space:nowrap;}
   #expired-screen,#notyet-screen{max-width:860px;margin:0 auto;padding:48px 16px;}
-  .preview-bar{background:#FFF4E5;border-bottom:1px solid #E0B080;}
-  .preview-bar .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 16px;font-size:1.05rem;font-weight:700;color:#5A3200;}
-  .preview-bar input{font:inherit;font-size:1.05rem;padding:4px 8px;border:1px solid #C89A60;border-radius:8px;}
-  .preview-bar button{font:inherit;font-size:1rem;font-weight:700;padding:5px 12px;border:1px solid #C89A60;border-radius:8px;background:#fff;color:#5A3200;cursor:pointer;}
-  .preview-bar .pv-note{font-weight:500;font-size:.95rem;}
 </style>
 
 <div class="topfreeze">
@@ -189,7 +184,7 @@
   <div class="titles">
     <div class="t1">Voter Assistance</div>
     <div class="t2">2026 General Script (Philadelphia No ID)</div>
-  </div> <div class="daily-banner">STAGING PREVIEW - not for volunteers</div></div></div><div class="preview-bar"><div class="wrap"><label for="previewDate">Preview as of</label><input type="date" id="previewDate" min="2026-09-01" max="2026-11-09"><button type="button" id="previewToday">Today</button><span class="pv-note" id="previewNote">Showing today's wording.</span></div></div>
+  </div> <div class="daily-banner">STAGING PREVIEW - not for volunteers</div></div></div>
 
 <header>
 <meta name="robots" content="noindex,nofollow"><div class="wrap">
@@ -695,5 +690,3 @@ $("faq").addEventListener("click", function(e){
 });
 render();
 </script>
-
-<script>(function(){var i=document.getElementById("previewDate"),t=document.getElementById("previewToday"),n=document.getElementById("previewNote");if(!i)return;function fmt(v){var p=v.split("-");return p[1]+"/"+p[2]+"/"+p[0];}function go(v){window.PREVIEW_DATE=v||"";if(n)n.textContent=v?"Showing the wording volunteers would see on "+fmt(v)+".":"Showing today's wording.";if(typeof render==="function")render();}i.addEventListener("change",function(){go(i.value);});t.addEventListener("click",function(){i.value="";go("");});})();</script>
