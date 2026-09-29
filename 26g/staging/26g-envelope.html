@@ -66,6 +66,8 @@
         padding:24px 20px; text-align:center; color:var(--ink); font-size:1.15rem; font-weight:600;
         box-shadow:0 0 0 4px rgba(18,48,107,.10);}
   .gate b{color:var(--navy);}
+  .totop{display:block; margin:22px auto 0; font:inherit; font-size:1.05rem; font-weight:700;
+         color:var(--accent); background:none; border:0; padding:8px 12px; cursor:pointer; text-decoration:underline;}
   .nextbtn{display:block; width:100%; font:inherit; font-weight:700; font-size:1rem;
            padding:13px 16px; border-radius:11px; border:none; cursor:pointer;
            background:var(--btn-on); color:var(--btn-on-ink); margin:0 0 16px;}
@@ -232,6 +234,8 @@ for (const name of Object.keys(DATA)) {
 }
 sel.value = "";
 sel.onchange = () => { county = sel.value; render(); };
+const FIXED_COUNTY = "";   // set only on the standalone Philadelphia page
+if (FIXED_COUNTY) { county = FIXED_COUNTY; sel.value = FIXED_COUNTY; sel.disabled = true; }
 
 function fmt(text, phone){
   let t = esc(text);
@@ -665,14 +669,17 @@ function ready(){ return county && DATA[county] && anyChecked(); }
 
 function nextVoter(){
   document.querySelectorAll(".ffcb").forEach(cb => cb.checked = false);
-  county = ""; sel.value = "";
+  county = FIXED_COUNTY || ""; sel.value = county;
   render();
   try { window.scrollTo(0, 0); } catch(e){}
-  sel.focus();
+  if (!FIXED_COUNTY) sel.focus();
 }
 window.nextVoter = nextVoter;
 
-const NEXT = cls => '<button class="nextbtn '+cls+'" onclick="nextVoter()">→ Next voter (clear county &amp; issues)</button>';
+// On the Philadelphia-only page the county is fixed, so Next voter clears just the error.
+const NEXT = cls => FIXED_COUNTY
+  ? '<button class="nextbtn '+cls+'" onclick="nextVoter()">→ Next voter (clear the error)</button>'
+  : '<button class="nextbtn '+cls+'" onclick="nextVoter()">→ Next voter (clear county &amp; issues)</button>';
 
 // Checked labels, for the voicemail intro which runs before `labs` is built below.
 function labs0(){
@@ -705,7 +712,8 @@ function render(){
   if (!ready()){
     faq.style.display = "none";
     let msg;
-    if (!county && !anyChecked()) msg = 'Select the <b>county</b> and check this voter’s <b>issues</b> above to show the script.';
+    if (FIXED_COUNTY && county)   msg = 'Check this voter’s <b>error</b> above to show the script.';
+    else if (!county && !anyChecked()) msg = 'Select the <b>county</b> and check this voter’s <b>issues</b> above to show the script.';
     else if (!county)             msg = 'Select the <b>county</b> above to show the script.';
     else                          msg = 'Check this voter’s <b>issues</b> above to show the script.';
     $("script").innerHTML = '<div class="gate">'+msg+'</div>';
