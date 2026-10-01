@@ -70,6 +70,9 @@
            padding:13px 16px; border-radius:11px; border:none; cursor:pointer;
            background:var(--btn-on); color:var(--btn-on-ink); margin:0 0 16px;}
   .nextbtn.bottom{margin:18px 0 0;}
+  .resetbtn{display:block; width:100%; font:inherit; font-weight:700; font-size:1rem; padding:12px 16px;
+            border-radius:11px; cursor:pointer; background:var(--btn-bg); color:var(--accent);
+            border:2px solid var(--accent); margin:0 0 16px;}
   .totop{display:block; margin:22px auto 0; font:inherit; font-size:1.05rem; font-weight:700;
          color:var(--accent); background:none; border:0; padding:8px 12px; cursor:pointer; text-decoration:underline;}
   .cty{font-size:1rem; color:var(--navy); font-weight:700; margin:0 0 14px;}
@@ -575,8 +578,9 @@ function renderFFTips(){
          fmt(t, c.phone) + '</div></div>';
   });
   const isPhl = c.undGroup === "phl";
-  // Provisional fallback, read after the fix for every error.
-  if (UNIVERSAL.provisional && !isPhl){
+  // Provisional fallback: no longer read aloud on any county (Lisa + boss, 2026-10-01);
+  // it is the first FAQ answer instead.
+  if (false && UNIVERSAL.provisional && !isPhl){
     h += '<div class="step"><div class="tag">If you can&rsquo;t fix it in time</div><div class="read">' +
          fmt(UNIVERSAL.provisional.replace("{PHONE}", phone), c.phone) + '</div></div>';
   }
@@ -613,6 +617,13 @@ function renderFFTips(){
   }
   box.innerHTML = h || '<p class="ffhint">Check the issues in this voter’s history above to show the tips to read.</p>';
   box.querySelectorAll('[data-phl]').forEach(b => b.onclick = () => phlChoose(b.getAttribute('data-phl')));
+  const o2 = $("phlNo");
+  if (o2) o2.addEventListener("toggle", () => {
+    const nb = document.querySelector('.phlbtn[data-phl="no"]');
+    if (!nb) return;
+    if (o2.open){ nb.classList.add('on'); const yb = document.querySelector('.phlbtn[data-phl="yes"]'); if (yb) yb.classList.remove('on'); const y = $("phlYes"); if (y) y.hidden = true; }
+    else nb.classList.remove('on');
+  });
   box.querySelectorAll('.boebtn[data-copy]').forEach(b => b.onclick = () => {
     const v = b.getAttribute('data-copy');
     const done = () => { const tag = b.parentElement.querySelector('.copied'); if (tag){ tag.hidden = false; setTimeout(() => tag.hidden = true, 1600); } };
@@ -663,6 +674,14 @@ function phlFix(c){
 }
 function phlChoose(v){
   const y = $("phlYes"), n = $("phlNo");
+  // Clicking the choice that is already open closes it again (Lisa 2026-10-01).
+  const active = document.querySelector('.phlbtn.on');
+  if (active && active.getAttribute('data-phl') === v){
+    active.classList.remove('on');
+    if (y) y.hidden = true;
+    if (n) n.open = false;
+    return;
+  }
   document.querySelectorAll('.phlbtn').forEach(b => b.classList.toggle('on', b.getAttribute('data-phl') === v));
   if (v === "yes"){ if (y) y.hidden = false; if (n) n.open = false; if (y) y.scrollIntoView({behavior:"smooth", block:"start"}); }
   else { if (y) y.hidden = true; if (n){ n.open = true; n.scrollIntoView({behavior:"smooth", block:"start"}); } }
@@ -693,12 +712,17 @@ function nextVoter(){
 }
 window.nextVoter = nextVoter;
 
+// Reset the script (Lisa 2026-10-01): redraws the page as it is at the start of a call, with
+// both options and every FAQ answer closed, and goes back to the top.
+function resetScript(){ render(); try { window.scrollTo(0, 0); } catch(e){} }
+window.resetScript = resetScript;
 function toTop(){ try { window.scrollTo({top:0, behavior:"smooth"}); } catch(e){ window.scrollTo(0,0); } }
 window.toTop = toTop;
 // The Philadelphia-only page has nothing to reset between calls (fixed county, one issue),
 // so it has no Next voter bars, just a Back to top link at the bottom (Lisa 2026-09-27).
+const RESET = '<button type="button" class="resetbtn" onclick="resetScript()">&#8634; Reset the script</button>';
 const NEXT = cls => FIXED_COUNTY
-  ? (cls === "bottom" ? '<button type="button" class="totop" onclick="toTop()">&#8593; Back to top</button>' : '')
+  ? (cls === "bottom" ? RESET + '<button type="button" class="totop" onclick="toTop()">&#8593; Back to top</button>' : RESET)
   : '<button class="nextbtn '+cls+'" onclick="nextVoter()">→ Next voter (clear county &amp; issues)</button>';
 
 function voicemailBlock(c){
