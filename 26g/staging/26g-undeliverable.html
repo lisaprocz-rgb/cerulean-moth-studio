@@ -616,7 +616,12 @@ function renderFFTips(){
          '</div></div>';
   }
   box.innerHTML = h || '<p class="ffhint">Check the issues in this voter’s history above to show the tips to read.</p>';
-  box.querySelectorAll('[data-phl]').forEach(b => b.onclick = () => phlChoose(b.getAttribute('data-phl')));
+  box.querySelectorAll('[data-phl]').forEach(b => b.onclick = () => {
+    const before = b.getBoundingClientRect().top;
+    phlChoose(b.getAttribute('data-phl'));
+    const after = b.getBoundingClientRect().top;
+    if (Math.abs(after - before) > 1) { try { window.scrollBy(0, after - before); } catch(e){} }
+  });
   const o2 = $("phlNo");
   if (o2) o2.addEventListener("toggle", () => {
     const nb = document.querySelector('.phlbtn[data-phl="no"]');
@@ -683,8 +688,10 @@ function phlChoose(v){
     return;
   }
   document.querySelectorAll('.phlbtn').forEach(b => b.classList.toggle('on', b.getAttribute('data-phl') === v));
-  if (v === "yes"){ if (y) y.hidden = false; if (n) n.open = false; if (y) y.scrollIntoView({behavior:"smooth", block:"start"}); }
-  else { if (y) y.hidden = true; if (n){ n.open = true; n.scrollIntoView({behavior:"smooth", block:"start"}); } }
+  // No scrolling: the boxes open below the buttons and the page stays where the volunteer
+  // clicked (Lisa 2026-10-01).
+  if (v === "yes"){ if (y) y.hidden = false; if (n) n.open = false; }
+  else { if (y) y.hidden = true; if (n) n.open = true; }
 }
 window.phlChoose = phlChoose;
 // Philadelphia only: the elections offices (Board of Elections + 10 satellites), as a volunteer
