@@ -199,6 +199,10 @@
      default visited purple was unreadable on the dark background (Lisa 2026-09-27). */
   .satbox a, .satbox a:visited{color:var(--accent); word-break:break-all; font-weight:700;}
   @media(max-width:640px){ .read{font-size:1.08rem;} select{min-width:150px; flex:1;} .vmail-body{font-size:1.06rem;} details{font-size:1rem;} summary{font-size:1.04rem;} }
+  /* Voicemail hidden for this round of calls (round_settings.py). Kept in the page. */
+  .vmail{display:none !important;}
+  .vmailoff{color:var(--warn); background:var(--warn-bg); border-radius:10px; font-weight:700;
+            font-size:1rem; padding:12px 16px; margin:0 0 18px;}
   .daily-banner{background:#8C4A00;color:#fff;font-weight:800;font-size:.85rem;padding:6px 12px;border-radius:8px;align-self:center;letter-spacing:.3px;white-space:nowrap;}
   #expired-screen,#notyet-screen{max-width:860px;margin:0 auto;padding:48px 16px;}
 </style>
@@ -776,7 +780,7 @@ function voicemailBlock(c){
     .replace(/\[\[B\]\]/g, '<b class="vb">').replace(/\[\[\/B\]\]/g, '</b>')
     .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, m => '<span class="email">'+m+'</span>')
     .replace("1-833-728-6837", '<span class="num">1-833-728-6837</span>');
-  return '<div class="vmail">' +
+  return '<div class="vmailoff">&#9888; Volunteer: we are not leaving voicemails on this round of calls. If no one answers, hang up and move on to the next voter.</div><div class="vmail" data-hidden-this-round="1">' +
     '<div class="vmail-hd">&#128222; Voicemail: leave this if no one answers</div>' +
     '<div class="vmail-sub">Read only if you reach the voter&rsquo;s voicemail. Otherwise skip to the script below.</div>' +
     '<div class="vmail-body">'+t+'</div>' +
