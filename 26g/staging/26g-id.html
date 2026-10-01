@@ -470,14 +470,41 @@ function ffCommitment(labels, c){
   return "";
 }
 // Live-transfer offer only makes sense while the county office is open.
-// Weekdays 9:00 AM to 4:30 PM, by the volunteer's local clock.
-function officeOpenNow(){
-  const d = new Date();
-  const day = d.getDay();                       // 0 Sun .. 6 Sat
-  if (day === 0 || day === 6) return false;     // no weekends
-  const mins = d.getHours() * 60 + d.getMinutes();
-  return mins >= 540 && mins <= 990;            // 540 = 9:00, 990 = 16:30
+// Weekdays 9:00 AM to 4:30 PM EASTERN time, whatever time zone the volunteer is in
+// (volunteers call from California and elsewhere; Lisa 2026-10-01).
+function etNow(){
+  // Day of week and minutes past midnight in America/New_York.
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {timeZone: "America/New_York", weekday: "short",
+      hour: "numeric", minute: "numeric", hourCycle: "h23"}).formatToParts(new Date());
+    const g = t => (parts.find(p => p.type === t) || {}).value;
+    const day = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(g("weekday"));
+    const mins = (parseInt(g("hour"), 10) % 24) * 60 + parseInt(g("minute"), 10);
+    if (day >= 0 && !isNaN(mins)) return {day: day, mins: mins};
+  } catch(e){}
+  const d = new Date();                          // fallback: old browsers without time zones
+  return {day: d.getDay(), mins: d.getHours() * 60 + d.getMinutes()};
 }
+function officeOpenNow(){
+  const t = etNow();
+  if (t.day === 0 || t.day === 6) return false;  // no weekends
+  return t.mins >= 540 && t.mins <= 990;         // 540 = 9:00, 990 = 16:30 (Eastern)
+}
+// If the page stays open across 9:00 AM or 4:30 PM Eastern, redraw the call steps so the
+// transfer offer appears or disappears on its own. Checked every 30 seconds.
+let lastOpenState = null;
+function refreshForHours(){
+  const act = document.querySelector('.phlbtn.on');
+  const v = act ? act.getAttribute('data-phl') : null;
+  const sy = window.scrollY;
+  renderFFTips();
+  if (v && window.phlChoose) window.phlChoose(v);
+  try { window.scrollTo(0, sy); } catch(e){}
+}
+setInterval(() => {
+  const o = officeOpenNow();
+  if (lastOpenState !== null && o !== lastOpenState) refreshForHours();
+}, 30000);
 
 const F = UNIVERSAL.ff;
 const ffWalk = F.blurbs.find(b => b[0] === FF_WALK_LABEL) || null;
@@ -493,6 +520,7 @@ $("ffpick").innerHTML = ffTips.map(([lab], i) =>
 $("ffpick").querySelectorAll(".ffcb").forEach(cb => cb.onchange = render);
 
 function renderFFTips(){
+  lastOpenState = officeOpenNow();
   const box = $("fftips");
   if (!box) return;
   const c = DATA[county];
@@ -541,7 +569,7 @@ function renderFFTips(){
        fmt(ID_DEADLINE_TEXT, c.phone) + '</div></div>';
   const labsForAsk = checked.map(([lab]) => lab);
   // Live transfer (spoken line + copy-number panel) shows together, only for No ID /
-  // Undeliverable and only while the county office is open (weekdays 9:00 AM to 4:30 PM).
+  // Undeliverable and only while the county office is open (weekdays 9:00 AM to 4:30 PM Eastern).
   const transferEligible = labsForAsk.indexOf("NO ID") !== -1 || labsForAsk.indexOf("UNDELIVERABLE") !== -1;
   const showTransfer = transferEligible && officeOpenNow();
   const noidMailAsk = WORDING.noidAddr && WORDING.noidAddr[county];
