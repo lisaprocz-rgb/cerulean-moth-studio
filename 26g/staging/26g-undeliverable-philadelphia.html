@@ -623,11 +623,19 @@ function renderFFTips(){
     if (Math.abs(after - before) > 1) { try { window.scrollBy(0, after - before); } catch(e){} }
   });
   const o2 = $("phlNo");
+  // Opening Option 2 from its own header hides the office box above it, which would pull the
+  // page up. Remember where the header was when clicked and put it back there (Lisa 2026-10-01).
+  const o2sum = o2 ? o2.querySelector('summary') : null;
+  if (o2sum) o2sum.addEventListener("click", () => { o2._anchor = o2sum.getBoundingClientRect().top; });
   if (o2) o2.addEventListener("toggle", () => {
     const nb = document.querySelector('.phlbtn[data-phl="no"]');
-    if (!nb) return;
-    if (o2.open){ nb.classList.add('on'); const yb = document.querySelector('.phlbtn[data-phl="yes"]'); if (yb) yb.classList.remove('on'); const y = $("phlYes"); if (y) y.hidden = true; }
-    else nb.classList.remove('on');
+    if (o2.open){ if (nb) nb.classList.add('on'); const yb = document.querySelector('.phlbtn[data-phl="yes"]'); if (yb) yb.classList.remove('on'); const y = $("phlYes"); if (y) y.hidden = true; }
+    else if (nb) nb.classList.remove('on');
+    if (o2sum && typeof o2._anchor === "number"){
+      const d = o2sum.getBoundingClientRect().top - o2._anchor;
+      o2._anchor = null;
+      if (Math.abs(d) > 1) { try { window.scrollBy(0, d); } catch(e){} }
+    }
   });
   box.querySelectorAll('.boebtn[data-copy]').forEach(b => b.onclick = () => {
     const v = b.getAttribute('data-copy');
