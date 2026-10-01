@@ -326,7 +326,9 @@ function renderRef(c){
   // the rest of the county rows.
   const rows = (c.faq || []).slice();
   const pick = re => { const i = rows.findIndex(([q]) => re.test(q)); return i === -1 ? "" : rows.splice(i, 1)[0]; };
-  const first = [pick(/drop box/i), pick(/satellite/i), pick(/on-demand|on demand/i)].filter(Boolean);
+  // Philadelphia's provisional-ballot answer goes first, ahead of the drop box and office
+  // lists (Lisa 2026-10-01).
+  const first = [pick(/polling place instead/i), pick(/drop box/i), pick(/satellite/i), pick(/on-demand|on demand/i)].filter(Boolean);
   const det = ([q, a]) => '<details><summary>'+esc(q)+'</summary>'+faqBody(a)+'</details>';
   const topFaq = first.map(det).join("");
   const countyFaq = rows.map(det).join("");
