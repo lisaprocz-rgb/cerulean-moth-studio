@@ -654,7 +654,7 @@ function renderFFTips(){
   lastOpenState = officeOpenNow();
   const box = $("fftips");
   if (!box) return;
-  const c = DATA[county];
+  const c = cOf(county);
   const phone = c.phone || "the number on this page";
   const checked = [...document.querySelectorAll(".ffcb")].filter(cb => cb.checked).map(cb => ffTips[+cb.dataset.i]);
   const multi = checked.length > 1;  // more than one issue -> drop the "2026 primary" framing
@@ -851,6 +851,14 @@ function twoWire(box){
 }
 
 
+// County data with any per-error override applied (Union, missing secrecy envelope).
+function cOf(k){
+  const c0 = DATA[k];
+  if (!c0 || !c0.envByErr) return c0;
+  const labs = checkedLabs();
+  const o = labs.length === 1 ? c0.envByErr[labs[0]] : null;
+  return o ? Object.assign({}, c0, o) : c0;
+}
 function anyChecked(){ return document.querySelectorAll(".ffcb:checked").length > 0; }
 function ready(){ return county && DATA[county] && anyChecked(); }
 
@@ -889,7 +897,7 @@ function voicemailBlock(c){
   const intro = "Hi, this message is for [VOTER NAME]. This is [YOUR NAME] from the PA Dems. The **"
     + office + "** has reported an error with your mail ballot, " + consequence
     + errorSentence() + " ";
-  const hotline = " If you have any questions, you can reach our Voter Assistance Hotline at 1-833-728-6837. Thank you.";
+  const hotline = " If you have any questions, you can call or text our Voter Assistance Hotline at 1-833-728-6837. Thank you.";
   let msg = intro + (c.envVm || "").split("{ERR}").join(errSaid()) + hotline;
   if (c.vmFull) msg = c.vmFull.split("{ERRVM}").join(errSaidVm()).split("{WILL}").join(twoWill());
   const t = fmt(msg, c.phone)
@@ -915,7 +923,7 @@ function render(){
     $("script").innerHTML = '<div class="gate">'+msg+'</div>';
     return;
   }
-  const c = DATA[county];
+  const c = cOf(county);
   faq.style.display = "";
   renderRef(c);
   // More than one issue -> the opener can't claim the 2026 primary either (issues may span elections).
