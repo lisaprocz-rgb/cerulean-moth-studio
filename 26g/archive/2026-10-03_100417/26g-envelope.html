@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>2026 G Envelope Errors</title>
+<title>Cure Script - 2026 G Envelope Errors - Saturday, October 3, 2026</title>
 <style>
   :root{
     --bg:#FBF8EC; --card:#FFFFFF; --ink:#1A2233; --muted:#5A6478; --navy:#071539;
@@ -49,7 +49,6 @@
   select{font:inherit; padding:8px 10px; border-radius:9px; border:1.5px solid var(--line);
          background:var(--card); color:var(--ink); min-width:200px;}
   .pickwrap{flex:1; min-width:260px;}
-  .picknote{font-size:1rem; color:var(--ink); margin:2px 0 8px 2px; line-height:1.35;}   /* Lisa 2026-10-03: where to find the error code */
   .controls .lbl{font-size:.72rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
                  color:var(--muted); margin:0 0 4px 2px;}
   .ffpick{display:flex; flex-wrap:wrap; gap:8px 18px; background:var(--card);
@@ -199,6 +198,8 @@
   .vmail{display:none !important;}
   .vmailoff{color:var(--warn); background:var(--warn-bg); border-radius:10px; font-weight:700;
             font-size:1rem; padding:12px 16px; margin:0 0 18px;}
+  .daily-banner{background:#8C4A00;color:#fff;font-weight:800;font-size:.85rem;padding:6px 12px;border-radius:8px;align-self:center;letter-spacing:.3px;white-space:nowrap;}
+  #expired-screen,#notyet-screen{max-width:860px;margin:0 auto;padding:48px 16px;}
 </style>
 
 <div class="topfreeze">
@@ -220,7 +221,6 @@
     </div>
     <div class="pickwrap">
       <div class="lbl">Pick the ballot error</div>
-      <div class="picknote">You can find the error code on the left side of the OpenVPB screen for this voter.</div>
       <div class="ffpick" id="ffpick"></div>
     </div>
   </div>

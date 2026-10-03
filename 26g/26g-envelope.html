@@ -49,6 +49,7 @@
   select{font:inherit; padding:8px 10px; border-radius:9px; border:1.5px solid var(--line);
          background:var(--card); color:var(--ink); min-width:200px;}
   .pickwrap{flex:1; min-width:260px;}
+  .picknote{font-size:1rem; color:var(--ink); margin:2px 0 8px 2px; line-height:1.35;}   /* Lisa 2026-10-03: where to find the error code */
   .controls .lbl{font-size:.72rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
                  color:var(--muted); margin:0 0 4px 2px;}
   .ffpick{display:flex; flex-wrap:wrap; gap:8px 18px; background:var(--card);
@@ -221,6 +222,7 @@
     </div>
     <div class="pickwrap">
       <div class="lbl">Pick the ballot error</div>
+      <div class="picknote">You can find the error code on the left side of the OpenVPB screen for this voter.</div>
       <div class="ffpick" id="ffpick"></div>
     </div>
   </div>
