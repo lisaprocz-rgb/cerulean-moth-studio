@@ -264,7 +264,7 @@ for (const name of Object.keys(DATA)) {
 }
 sel.value = "";
 sel.onchange = () => { county = sel.value; render(); };
-const FIXED_COUNTY = "";   // set only on the standalone Philadelphia page
+const FIXED_COUNTY = "";   // set only on the standalone Philadelphia / Montgomery pages
 if (FIXED_COUNTY) { county = FIXED_COUNTY; sel.value = FIXED_COUNTY; sel.disabled = true; }
 
 function fmt(text, phone){
