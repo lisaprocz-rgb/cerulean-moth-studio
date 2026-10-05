@@ -591,7 +591,7 @@ function renderFFTips(){
   // Live transfer (spoken line + copy-number panel) shows together, only for No ID /
   // Undeliverable and only while the county office is open (weekdays 9:00 AM to 4:30 PM Eastern).
   const transferEligible = labsForAsk.indexOf("NO ID") !== -1 || labsForAsk.indexOf("UNDELIVERABLE") !== -1;
-  const showTransfer = transferEligible && officeOpenNow();
+  const showTransfer = transferEligible && officeOpenNow() && !c.noTransfer;
   const noidMailAsk = WORDING.noidAddr && WORDING.noidAddr[county];
   const ASK = {
     "form": "Can we count on you to complete the ID Verification Form?",
@@ -600,7 +600,9 @@ function renderFFTips(){
     "call": "Can we count on you to make that call?"
   };
   let ask = noidMailAsk ? "Can we count on you to mail that letter?" : (ASK[c.idMode] || ASK.call);
-  if (ask) h += '<div class="step"><div class="tag">Ask for the commitment</div><div class="read">'+fmt(ask, c.phone)+'</div></div>';
+  if (c.askText) ask = c.askText;
+  if (ask) h += '<div class="step"><div class="tag">Ask for the commitment</div><div class="read">'+fmt(ask, c.phone)+'</div>' +
+                (c.askNote ? '<div class="volnote">&#9888; ' + esc(c.askNote) + '</div>' : '') + '</div>';
   if (showTransfer){
     const num = c.phone || "";
     const officeName = c.boe || (county + " County Board of Elections");
