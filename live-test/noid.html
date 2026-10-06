@@ -57,7 +57,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy)}
   <label for="county">County</label>
   <select id="county"></select>
   <span class="sz">Text size <button id="smaller" aria-label="Smaller text">A-</button> <button id="bigger" aria-label="Larger text">A+</button></span>
-  <span id="previewCtl" hidden><label for="asof">Preview as of</label> <input type="date" id="asof"></span>
+  
 </div>
 <div class="errs" id="errs"></div>
 <main id="out"></main>
@@ -189,7 +189,7 @@ function etNow(){
   const p=new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false,weekday:"short"}).formatToParts(new Date());
   const g=t=>p.find(x=>x.type===t).value;
   let date=`${g("year")}-${g("month")}-${g("day")}`, mins=(+g("hour")%24)*60+(+g("minute"));
-  const ov=$("#asof").value; if(ov){date=ov; mins=11*60;}
+  const ovEl=$("#asof"), ov=ovEl&&ovEl.value; if(ov){date=ov; mins=11*60;}
   const dow=new Date(date+"T12:00:00").getDay();
   return {date,mins,dow};
 }
@@ -458,11 +458,10 @@ async function loadLive(){
   return b.data;
 }
 function start(){
-if(/[?&]preview\b/.test(location.search)) $("#previewCtl").hidden=false;
 // ---------- setup ----------
 const sel=$("#county");
 Object.keys(D.C).sort().forEach(k=>{const o=document.createElement("option");o.value=o.textContent=k;sel.appendChild(o);});
-sel.onchange=render; $("#asof").onchange=render;
+sel.onchange=render;
 if(KIND==="env"){
   const labs={"NO SIGNATURE":"No signature","NO DATE":"No date","INCORRECT DATE":"Incorrect date","NO SECRECY ENVELOPE":"No secrecy envelope","OTHER":"Other"};
   $("#errs").innerHTML="<b>Ballot error:</b> "+Object.entries(labs).map(([k,v],i)=>`<label><input type="radio" name="err" value="${k}" ${i?"":"checked"}> ${v}</label>`).join("");
