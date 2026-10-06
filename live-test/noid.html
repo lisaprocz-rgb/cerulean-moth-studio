@@ -280,7 +280,9 @@ function item(e,{skipNotes=false}={}){
 }
 const items=(k,o)=>T(k).map(e=>item(e,o)).join("");
 function card(title,inner,cls=""){return inner?`<div class="card ${cls}"><h2>${esc(title)}</h2>${inner}</div>`:"";}
-function faq(q,k){const a=T(k).map(e=>fill(e.text)).join(" ");return a?`<div class="faq"><b>${esc(q)}</b>${a}</div>`:"";}
+let SCRIPTFAQ=[];
+// Script-tab FAQs (bucket wording) join the one FAQ list below instead of a separate card.
+function faq(q,k){const a=T(k).map(e=>fill(e.text)).join(" "); if(a) SCRIPTFAQ.push({q,body:`<p>${a}</p>`}); return "";}
 function transferHTML(c,lead){
   if(openNow(c)) return (lead?`<div class="say">${fill(lead)}</div>`:"")+`<div class="vnote">Volunteer: if they want the transfer, wait for them to say yes before you start it.</div>`+ENVT("Same for every county|Transfer (when offered)|Office open").map(e=>item(e)).join("")+`<div class="btns"><button onclick="navigator.clipboard&&navigator.clipboard.writeText('${esc(c.phone)}')">Copy ${esc(KNAME)} office number</button></div><div class="vnote">The phone number will be copied to your clipboard. Then use the transfer tool in Dialpad to connect the voter.</div>`;
   return `<div class="vnote">Volunteer: the office is closed right now (Eastern time), so there is no transfer option. Read this instead of the transfer offer:</div>`+ENVT("Same for every county|Transfer (when offered)|Office closed").map(e=>item(e)).join("");
@@ -423,12 +425,16 @@ function faqHTML(c,code,already){
     items.push({order:r.order,q:r.q,body});
   }
   for(const r of countyRows) items.push({order:r.order,q:r.q,body:`<p>${fill(r.a).replace(/\n/g,"<br>")}</p>`});
-  const out=items.filter(it=>!already.includes(`<b>${esc(it.q)}</b>`)).sort((a,b)=>a.order-b.order)
+  const sq=new Set(SCRIPTFAQ.map(x=>x.q.toLowerCase()));
+  const ord=q=>{const m=D.FAQ.all.find(r=>r.q.toLowerCase()===q.toLowerCase()); return m?m.order:5;};
+  const all=SCRIPTFAQ.map(x=>({order:ord(x.q),q:x.q,body:x.body})).concat(items.filter(it=>!sq.has(it.q.toLowerCase())));
+  const out=all.sort((a,b)=>a.order-b.order)
     .map(it=>`<details class="qa"><summary>${esc(it.q)}</summary><div class="ans">${it.body}</div></details>`).join("");
-  return card("Voter questions (not read aloud unless the voter asks)",out);
+  return card("FAQ (not read aloud unless the voter asks)",out);
 }
 
 function render(){
+  SCRIPTFAQ=[];
   KNAME=$("#county").value; const c=D.C[KNAME]; ONEOFFICE=c.offices.length<=1;
   const code=KIND==="env"?(document.querySelector('input[name=err]:checked')||{}).value:null;
   setCtx(c,code);
