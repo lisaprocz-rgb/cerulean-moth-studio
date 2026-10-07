@@ -394,7 +394,9 @@ function renderUnd(c){
   const opt2html=(t)=>{
     const callish=cp.call&&/transfer you/.test(t);
     if(callish) return transferHTML(c,t)+ask;
-    return `<div class="say">${fill(t)}</div>`+ask;
+    // Transfer to the election office sits inside the "They can't get to one" box, only while the office is open
+    const tlead=(T(S("Transfer|Office open"))[0]||{text:""}).text;
+    return `<div class="say">${fill(t)}</div>`+ask+(openNow(c)&&tlead?`<h2 style="margin-top:22px">Transfer to the election office</h2>`+transferHTML(c,tlead):"");
   };
   let h=card("Why we're calling",items(S("Why we're calling|All")));
   if(past){
@@ -405,8 +407,6 @@ function renderUnd(c){
       +`<div id="o1A" class="hide">${officeListHTML(c)}${items(S("Show office info|Can get to an office"))}</div>`
       +`<div id="o1B" class="hide"><h2>Option 2</h2>${opt2html(opt2)}</div>`);
   }
-  const lead=(T(S("Transfer|Office open"))[0]||{text:""}).text;
-  if(openNow(c) && lead && !(cp.call&&/transfer you/.test(opt2))) h+=card("Transfer to the election office",transferHTML(c,lead));
   const vm=T(S("Voicemail|All (the Option 2 sentence changes by bucket)"))[0].text;
   return vmCard([vm])+card("Opening",items(S("Opening|All")))+h+closing()
     +card("FAQ",faq("Can I just vote at my polling place instead?",S("FAQ: Can I just vote at my polling place instead?|All")));
@@ -427,7 +427,7 @@ function renderNoid(c){
     fix=items(G("How to fix it|All"))+items(G("Ask for the commitment|All"))+(openNow(c)?`<div class="say">${fill(T(G("Transfer|Office open"))[0].text)}</div>`+transferHTML(c,""):"");
   }
   if(!/transfer/i.test(fix) && openNow(c)){ const lead=(T("Call the office (generic, Philadelphia pattern)|Transfer|Office open")[0]||{text:""}).text;
-    if(lead) fix+=`<h2>Transfer to the election office</h2>`+transferHTML(c,lead); }
+    if(lead) fix+=`<h2 style="margin-top:22px">Transfer to the election office</h2>`+transferHTML(c,lead); }
   const vm=T("Call the office (generic, Philadelphia pattern)|Voicemail|All")[0].text;
   return vmCard([vm])+card("Opening",items(S("Opening|All")))+card("Why we're calling",items(S("Why we're calling|All")))
     +card("How to fix it",fix)+closing()
