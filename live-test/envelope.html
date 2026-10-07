@@ -289,7 +289,7 @@ function transferHTML(c,lead){
 }
 const ENVT=k=>D.T.env[k]||[];
 function vmCard(parts){
-  return `<div class="card"><details><summary>Voicemail (we are not leaving voicemails this round; kept here for the next round)</summary>${parts.map(p=>`<div class="say">${fill(p)}</div>`).join("")}</details></div>`;
+  return `<div class="card"><details><summary>Voicemail</summary>${parts.map(p=>`<div class="say">${fill(p)}</div>`).join("")}</details></div>`;
 }
 function branchButtons(id,a,b){return `<div class="btns" data-grp="${id}"><button data-show="${id}A">${esc(a)}</button><button data-show="${id}B">${esc(b)}</button></div>`;}
 function wire(){
