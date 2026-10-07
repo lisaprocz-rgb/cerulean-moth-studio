@@ -165,6 +165,15 @@
   .vmail-hd{display:inline-block; background:var(--warn); color:var(--bg);
             font-size:.74rem; font-weight:800; letter-spacing:.8px; text-transform:uppercase;
             padding:5px 12px; border-radius:999px; margin-bottom:10px;}
+  /* Voicemail is a collapsed box (Lisa 2026-10-07); tap the header to open */
+  details.vmail{padding:12px 18px;}
+  details.vmail > summary{list-style:none; display:flex; align-items:center; flex-wrap:wrap; gap:10px;}
+  details.vmail > summary::-webkit-details-marker{display:none;}
+  details.vmail > summary .vmail-hd{margin:0;}
+  details.vmail > summary .vmail-tap{color:var(--warn); font-weight:700; font-size:.88rem;}
+  details.vmail > summary .vmail-tap::before{content:"▸  Tap to open";}
+  details.vmail[open] > summary .vmail-tap::before{content:"▾  Tap to close";}
+  details.vmail[open] > summary{margin-bottom:12px;}
   .vmail-sub{color:var(--warn); font-weight:700; font-size:.82rem; margin:0 0 8px;}
   .vmail-body{background:var(--card); border-radius:10px; padding:14px 16px;
               font-size:1.18rem; line-height:1.75; color:var(--ink); white-space:pre-line;
@@ -173,10 +182,6 @@
   .vmail-body .nm{background:var(--chip); border-radius:5px; padding:1px 7px; font-weight:700; color:var(--ink);}
   .vmail-body .num{color:var(--phone); font-weight:700; white-space:nowrap;}
   @media(max-width:640px){ .read{font-size:1.08rem;} select{min-width:150px; flex:1;} .vmail-body{font-size:1.06rem;} details{font-size:1rem;} summary{font-size:1.04rem;} }
-  /* Voicemail hidden for this round of calls (round_settings.py). Kept in the page. */
-  .vmail{display:none !important;}
-  .vmailoff{color:var(--warn); background:var(--warn-bg); border-radius:10px; font-weight:700;
-            font-size:1rem; padding:12px 16px; margin:0 0 18px;}
 </style>
 
 <div class="topfreeze">
@@ -638,6 +643,7 @@ function anyChecked(){ return document.querySelectorAll(".ffcb:checked").length 
 function ready(){ return county && DATA[county] && anyChecked(); }
 
 function nextVoter(){
+  VM_OPEN = false;   // next voter starts with the voicemail box closed
   document.querySelectorAll(".ffcb").forEach(cb => cb.checked = true);  // V6: keep No ID checked
   county = FIXED_COUNTY || ""; sel.value = county;
   render();
@@ -654,6 +660,7 @@ const NEXT = cls => FIXED_COUNTY
   ? (cls === "bottom" ? '<button type="button" class="totop" onclick="toTop()">&#8593; Back to top</button>' : '')
   : '<button class="nextbtn '+cls+'" onclick="nextVoter()">→ Next voter (clear county &amp; issues)</button>';
 
+let VM_OPEN = false;   // voicemail box open/closed, kept while the page re-renders
 function voicemailBlock(c){
   const office = (c && c.boe) ? c.boe : "your county elections office";
   const ph = (c && c.phone) ? c.phone : "";
@@ -686,12 +693,13 @@ function voicemailBlock(c){
     .replace("[VOTER NAME]", '<span class="nm">[VOTER NAME]</span>')
     .replace("[YOUR NAME]", '<span class="nm">[YOUR NAME]</span>')
     .replace("1-833-728-6837", '<span class="num">1-833-728-6837</span>');
-  return '<div class="vmailoff">&#9888; Volunteer: we are not leaving voicemails on this round of calls. If no one answers, hang up and move on to the next voter.</div><div class="vmail" data-hidden-this-round="1">' +
-    '<div class="vmail-hd">&#128222; Voicemail: leave this if no one answers</div>' +
-    '<div class="vmail-sub">Read only if you reach the voter&rsquo;s voicemail. Otherwise skip to the script below.</div>' +
+  // Collapsed by default (Lisa 2026-10-07): no per-round on/off switch. The volunteer
+  // instructions say whether to leave a voicemail; the box just keeps it out of the way.
+  return '<details class="vmail"'+(VM_OPEN ? ' open' : '')+' ontoggle="VM_OPEN=this.open">' +
+    '<summary><span class="vmail-hd">&#128222; Voicemail</span><span class="vmail-tap"></span></summary>' +
     '<div class="vmail-body">'+t+'</div>' +
     (UNIVERSAL.noteVm ? '<div class="volnote">&#9888; Volunteer: '+esc(UNIVERSAL.noteVm)+'</div>' : '') +
-  '</div>';
+  '</details>';
 }
 function render(){
   const faq = $("faqwrap");

@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>2026 G Philadelphia Envelope Errors</title>
+<title>Cure Script - 2026 G Philadelphia Envelope Errors - Monday, October 5, 2026</title>
 <style>
   :root{
     --bg:#FBF8EC; --card:#FFFFFF; --ink:#1A2233; --muted:#5A6478; --navy:#071539;
@@ -166,15 +166,6 @@
   .vmail-hd{display:inline-block; background:var(--warn); color:var(--bg);
             font-size:.74rem; font-weight:800; letter-spacing:.8px; text-transform:uppercase;
             padding:5px 12px; border-radius:999px; margin-bottom:10px;}
-  /* Voicemail is a collapsed box (Lisa 2026-10-07); tap the header to open */
-  details.vmail{padding:12px 18px;}
-  details.vmail > summary{list-style:none; display:flex; align-items:center; flex-wrap:wrap; gap:10px;}
-  details.vmail > summary::-webkit-details-marker{display:none;}
-  details.vmail > summary .vmail-hd{margin:0;}
-  details.vmail > summary .vmail-tap{color:var(--warn); font-weight:700; font-size:.88rem;}
-  details.vmail > summary .vmail-tap::before{content:"▸  Tap to open";}
-  details.vmail[open] > summary .vmail-tap::before{content:"▾  Tap to close";}
-  details.vmail[open] > summary{margin-bottom:12px;}
   .vmail-sub{color:var(--warn); font-weight:700; font-size:.82rem; margin:0 0 8px;}
   .vmail-body{background:var(--card); border-radius:10px; padding:14px 16px;
               font-size:1.18rem; line-height:1.75; color:var(--ink); white-space:pre-line;
@@ -204,6 +195,12 @@
   .satcard b{display:block; color:var(--navy);}
   .satcard i{display:block; font-style:normal; color:var(--muted); font-size:.98rem;}
   .satbox a, .satbox a:visited{color:var(--accent); word-break:break-all; font-weight:700;}
+  /* Voicemail hidden for this round of calls (round_settings.py). Kept in the page. */
+  .vmail{display:none !important;}
+  .vmailoff{color:var(--warn); background:var(--warn-bg); border-radius:10px; font-weight:700;
+            font-size:1rem; padding:12px 16px; margin:0 0 18px;}
+  .daily-banner{background:#8C4A00;color:#fff;font-weight:800;font-size:.85rem;padding:6px 12px;border-radius:8px;align-self:center;letter-spacing:.3px;white-space:nowrap;}
+  #expired-screen,#notyet-screen{max-width:860px;margin:0 auto;padding:48px 16px;}
 </style>
 
 <div class="topfreeze">
@@ -903,7 +900,6 @@ function anyChecked(){ return document.querySelectorAll(".ffcb:checked").length 
 function ready(){ return county && DATA[county] && anyChecked(); }
 
 function nextVoter(){
-  VM_OPEN = false;   // next voter starts with the voicemail box closed
   document.querySelectorAll(".ffcb").forEach(cb => cb.checked = false);
   county = FIXED_COUNTY || ""; sel.value = county;
   render();
@@ -922,7 +918,6 @@ function labs0(){
   return [...document.querySelectorAll(".ffcb:checked")]
            .map(cb => (ffTips[+cb.dataset.i] || [])[0]).filter(Boolean);
 }
-let VM_OPEN = false;   // voicemail box open/closed, kept while the page re-renders
 function voicemailBlock(c){
   const office = (c && c.boe) ? c.boe : "your county elections office";
   // Voicemail opening (Lisa 2026-09-19): who is calling and what the county found, in one
@@ -946,13 +941,12 @@ function voicemailBlock(c){
     .replace("[VOTER NAME]", '<span class="nm">[VOTER NAME]</span>')
     .replace("[YOUR NAME]", '<span class="nm">[YOUR NAME]</span>')
     .replace("1-833-728-6837", '<span class="num">1-833-728-6837</span>');
-  // Collapsed by default (Lisa 2026-10-07): no per-round on/off switch. The volunteer
-  // instructions say whether to leave a voicemail; the box just keeps it out of the way.
-  return '<details class="vmail"'+(VM_OPEN ? ' open' : '')+' ontoggle="VM_OPEN=this.open">' +
-    '<summary><span class="vmail-hd">&#128222; Voicemail</span><span class="vmail-tap"></span></summary>' +
+  return '<div class="vmailoff">&#9888; Volunteer: we are not leaving voicemails on this round of calls. If no one answers, hang up and move on to the next voter.</div><div class="vmail" data-hidden-this-round="1">' +
+    '<div class="vmail-hd">&#128222; Voicemail: leave this if no one answers</div>' +
+    '<div class="vmail-sub">Read only if you reach the voter&rsquo;s voicemail. Otherwise skip to the script below.</div>' +
     '<div class="vmail-body">'+t+'</div>' +
     (UNIVERSAL.noteVm ? '<div class="volnote">&#9888; Volunteer: '+esc(UNIVERSAL.noteVm)+'</div>' : '') +
-  '</details>';
+  '</div>';
 }
 function render(){
   const faq = $("faqwrap");
