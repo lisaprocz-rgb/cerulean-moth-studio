@@ -439,7 +439,6 @@ function render(){
   const code=KIND==="env"?(document.querySelector('input[name=err]:checked')||{}).value:null;
   setCtx(c,code);
   let h="";
-  if(APPROVED[KNAME]) h+=`<div class="banner">${KNAME} has its own approved script. Use the ${KNAME} link volunteers already have. The text below is the bucket version, for comparison only.</div>`;
   h+=KIND==="env"?renderEnv(c,code):KIND==="und"?renderUnd(c):renderNoid(c);
   h+=faqHTML(c,code,h);
   h+=card("County contact info (reference)",`<div class="ref"><b>${esc(c.office)}</b>Phone: ${esc(c.phone)}<br>Email: ${esc(c.email||"none listed")}<br>Address: ${esc(c.addr)}<br>Drop boxes: ${c.boxes}</div>`);
